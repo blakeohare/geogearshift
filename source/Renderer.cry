@@ -1,54 +1,65 @@
+import GFX;
 import Math;
+
+// determine model dimensions of the screen.
+const LOGICAL_SCREEN_HEIGHT = .48;
+const LOGICAL_SCREEN_WIDTH = LOGICAL_SCREEN_HEIGHT * SCREEN_WIDTH / SCREEN_HEIGHT;
+
+enum ObjectType {
+	TRIANGLE,
+	CAR,
+	TREE,
+}
 
 class Renderer {
 	
 	field playscene;
-	field triangles = [];
+	
+	// each object is a list:
+	// - a type (enum above)
+	// - sortable X
+	// - sortable Y
+	// - sortable Z
+	// - sort priority tier (lower is closer, 0 is ground triangles, everything else that is standing upright is 1)
+	
+	// remaining objects for triangles
+	// - an XYZ list for point A
+	// - an XYZ list for point B
+	// - an XYZ list for point C
+	// - red
+	// - green
+	// - blue
+	
+	// remaining objects for billboard images
+	// - logical width of the image.
+	// - a pointer to an image getter
+	// (the bottom center is the sortable XYZ
+	
+	field objects = [];
+	
+	field cameraX = 0;
+	field cameraY = 0;
+	field cameraZ = 0;
+	
+	// the components of the plane equation of the screen.
+	// Nx * (x - x0) + Ny * (y - y0) + Nz * (z - z0) = Nc
+	field Nx = 0;
+	field Ny = 0;
+	field Nz = 0;
+	field Nc = 0;
+	
+	// Two points. The bottom two corners of the screen.
+	field screenAx = 0;
+	field screenAy = 0;
+	field screenAz = 0;
+	field screenBx = 0;
+	field screenBy = 0;
+	field screenBz = 0;
 	
 	constructor(playscene) {
 		this.playscene = playscene;
 		
-		segments = playscene.roadSegments;
-		length = segments.length;
-		zitem = [0.0];
-		colors = [[255, 0, 0], [0, 128, 0], [0, 0, 255], [255, 255, 0]];
-		for (i = 0; i < length - 1; ++i) {
-			firstPair = segments[i];
-			secondPair = segments[(i + 1) % length];
-			a = firstPair[0] + zitem;
-			b = firstPair[1] + zitem;
-			c = secondPair[0] + zitem;
-			d = secondPair[1] + zitem;
-			
-			rgb = colors[0];
-			this.triangles.add([a, b, c, rgb[0], rgb[1], rgb[2]]);
-			this.triangles.add([c, b, d, rgb[0] * 9 / 10, rgb[1] * 9 / 10, rgb[2] * 9 / 10]);
-			colors = colors[1:] + [colors[0]];
-		}
-		
-		a = [-1.0, -1.0];
-		b = [-1.0, 1.0];
-		c = [1.0, 1.0];
-		d = [1.0, -1.0];
-		
-		aLower = a + zitem;
-		bLower = b + zitem;
-		cLower = c + zitem;
-		dLower = d + zitem;
-		titem = [2.0];
-		aUpper = a + titem;
-		bUpper = b + titem;
-		cUpper = c + titem;
-		dUpper = d + titem;
-		
-		this.triangles.add(
-			[aLower, bLower, aUpper, 255, 255, 255],
-			[aUpper, bUpper, bLower, 200, 200, 200],
-			[bLower, cLower, bUpper, 100, 100, 100],
-			[bUpper, cUpper, cLower, 50, 50, 50]
-		);
-		
-		this.triangles = [];
+		this.objects = [];
 		for (y = 0; y < 10; ++y) {
 			for (x = 0; x < 10; ++x) {
 				color = (x + y) % 2 == 0 ? 255 : 0;
@@ -56,9 +67,18 @@ class Renderer {
 				b = [x + 1.0, y + 0.0, 0.0];
 				c = [x + 1.0, y + 1.0, 0.0];
 				d = [x + 0.0, y + 1.0, 0.0];
-				this.triangles.add(
-					[a, b, c, color, color, color],
-					[a, c, d, color, color, color]);
+				
+				cx = (a[0] + b[0] + c[0]) / 3;
+				cy = (a[1] + b[1] + c[1]) / 3;
+				cz = (a[2] + b[2] + c[2]) / 3;
+				
+				this.objects.add([ObjectType.TRIANGLE, [cx, cy, cz, 0], [a, b, c], [color, color, color]]);
+				
+				cx = (a[0] + d[0] + c[0]) / 3;
+				cy = (a[1] + d[1] + c[1]) / 3;
+				cz = (a[2] + d[2] + c[2]) / 3;
+				
+				this.objects.add([ObjectType.TRIANGLE, [cx, cy, cz, 0], [a, d, c], [color, color, color]]);
 			}
 		}
 	}
@@ -78,24 +98,18 @@ class Renderer {
 		}
 	}
 	
-	function getTriangleDistance(triangle) {
-		player = this.playscene.player;
-		a = triangle[0];
-		b = triangle[1];
-		c = triangle[2];
-		
-		dx = (a[0] + b[0] + c[0]) / 3 - player.x;
-		dy = (a[1] + b[1] + c[1]) / 3 - player.y;
-		dz = (a[2] + b[2] + c[2]) / 3;
-		
-		return dx ** 2 + dy ** 2 + dz ** 2;
+	function getObjectDistance(object) {
+		loc = object[1];
+		dx = loc[0] - this.cameraX;
+		dy = loc[1] - this.cameraY;
+		dz = loc[2] - this.cameraZ;
+		priorityTier = loc[3];
+		return (dx ** 2 + dy ** 2 + dz ** 2) ** .5 - 10000000.0 * priorityTier;
 	}
 	
-	// This function is super duper naive
-	function getSortedTriangles() {
-		triangles = this.triangles.clone();
-		triangles.sort(this.getTriangleDistance);
-		return triangles;
+	function getSortedObjects() {
+		this.objects.sort(this.getObjectDistance);
+		return this.objects;
 	}
 	
 	function render(counter) {
@@ -112,128 +126,136 @@ class Renderer {
 		focusY = playerY;
 		focusZ = .5; // look just above the player
 		
+		// determine the bottom center of the screen
 		screenDistance = 2.0;
 		screenX = Math.sin(toCamera) * screenDistance + focusX;
 		screenY = Math.cos(toCamera) * screenDistance + focusY;
 		screenZ = focusZ;
 		
+		// a unit vector that points from the focus point (player) to the screen
 		mx = (screenX - focusX) / screenDistance;
 		my = (screenY - focusY) / screenDistance;
 		mz = (screenZ - focusZ) / screenDistance;
 		
+		// follow that same vector to determine where the camera is located.
 		eyeScreenDistance = 1.0; // adjust this to make the view angle wider (smaller means wider)
-		eyeX = screenX + mx * eyeScreenDistance;
-		eyeY = screenY + my * eyeScreenDistance;
-		eyeZ = screenZ + mz * eyeScreenDistance;
-		
-		// correct
-		//print([focusX, focusY, ' ', screenX, screenY, ' ', eyeX, eyeY]);
-		
-		screenHeight = .48;
-		screenWidth = screenHeight * SCREEN_WIDTH / SCREEN_HEIGHT;
+		this.cameraX = screenX + mx * eyeScreenDistance;
+		this.cameraY = screenY + my * eyeScreenDistance;
+		this.cameraZ = screenZ + mz * eyeScreenDistance;
 		
 		theta = toCamera + HALF_PI;
 		
-		cAx = screenX + Math.sin(theta) * screenWidth / 2;
-		cAy = screenY + Math.cos(theta) * screenWidth / 2;
-		cAz = 0.5;
+		// calculate two corners of the screen on the bottom.
+		this.screenAx = screenX + Math.sin(theta) * LOGICAL_SCREEN_WIDTH / 2;
+		this.screenAy = screenY + Math.cos(theta) * LOGICAL_SCREEN_WIDTH / 2;
+		this.screenAz = 0.5;
 		
-		cBx = 2 * screenX - cAx;
-		cBy = 2 * screenY - cAy;
-		cBz = 0.5;
-		
-		//print([cAx, cAy, cAz, ' ', cBx, cBy, cBz]);
+		this.screenBx = 2 * screenX - this.screenAx;
+		this.screenBy = 2 * screenY - this.screenAy;
+		this.screenBz = this.screenAz;
 		
 		// compute camera vectors (left and bottom of "screen")
 		
-		// left side of the screen is a vertical vector
+		// left side of the screen is just a vertical vector along the height of the screen
+		// since it doesn't tilt up or down
 		Lx = 0.0;
 		Ly = 0.0;
-		Lz = screenHeight;
+		Lz = LOGICAL_SCREEN_HEIGHT;
 		
 		// bottom side of the screen is level and goes between cA and cB
-		Bx = cBx - cAx;
-		By = cBy - cAy;
-		Bz = cBz - cAz;
+		Bx = this.screenBx - this.screenAx;
+		By = this.screenBy - this.screenAy;
+		Bz = this.screenBz - this.screenAz;
 		
-		// cross product to find normal vector
-		Nx = Ly * Bz - By * Lz;
-		Ny = Lz * Bx - Bz * Lx;
-		Nz = Lx * By - Bx * Ly;
+		// cross product to find normal vector which is part of the plane equation for the screen.
+		this.Nx = Ly * Bz - By * Lz;
+		this.Ny = Lz * Bx - Bz * Lx;
+		this.Nz = Lx * By - Bx * Ly;
+		this.Nc = this.Nx * this.screenAx + this.Ny * this.screenAy + this.Nz * this.screenAz;
 		
-		N = (Nx * cAx + Ny * cAy + Nz * cAz);
+		// The equation of the camera Plane is Nx * x + Ny * y + Nz * z = Nc
 		
-		// The equation of the camera Plane is Nx * x + Ny * y + Nz * z = N
+		for (object : this.getSortedObjects()) {
+			switch (object[0]) {
+				case ObjectType.TRIANGLE:
+					this.renderTriangle(object[2], object[3]);
+					break;
+				default:
+					break;
+			}
+		}
+	}
+	
+	// reusable temporary point list.
+	static field pts = [[0] * 3, [0] * 3, [0] * 3];
+	
+	function renderTriangle(ABC, rgb) {
 		
-		pts = [
-			[0] * 3,
-			[0] * 3,
-			[0] * 3];
+		// how many points are on the screen?
+		ptCount = 0;
+		i = 3;
+		while (--i >= 0) {
+			triPoint = ABC[i];
+			
+			eqLeft = this.Nc - this.Nx * this.cameraX - this.Ny * this.cameraY - this.Nz * this.cameraZ;
+			eqRight = 
+				this.Nx * (triPoint[0] - this.cameraX) +
+				this.Ny * (triPoint[1] - this.cameraY) +
+				this.Nz * (triPoint[2] - this.cameraZ);
+			
+			if (eqRight == 0) {
+				// does not intersect, i.e. line is parallel to the screen plane.
+				t = null;
+			} else {
+				t = eqLeft / eqRight;
+				if (t > 0) { // t < 0 indicates it's behind the camera
+					ptCount++;
+					pt = Renderer.pts[i];
+					pt[0] = this.cameraX + t * (triPoint[0] - this.cameraX);
+					pt[1] = this.cameraY + t * (triPoint[1] - this.cameraY);
+					pt[2] = this.cameraZ + t * (triPoint[2] - this.cameraZ);
+				}
+			}
+		}
 		
-		triangles = this.getSortedTriangles();
-		for (triangle : triangles) {
-			//print(triangle);
-			ptCount = 0;
+		// Renderer.pts now represents the point in SPACE where the triangle rays intersect the screen
+		// convert these into screen coordinates
+		
+		if (ptCount == 3) {
 			i = 3;
+			
+			drawPts = [];
 			while (--i >= 0) {
-				triPoint = triangle[i];
-				ax = triPoint[0];
-				ay = triPoint[1];
-				az = triPoint[2];
+				pt = Renderer.pts[i];
+				px = pt[0];
+				py = pt[1];
+				pz = pt[2];
 				
-				eqLeft = N - Nx * eyeX - Ny * eyeY - Nz * eyeZ;
-				eqRight = Nx * (ax - eyeX) + Ny * (ay - eyeY) + Nz * (az - eyeZ);
+				// y is easy enough. The left side of the screen is always vertical.
+				// subtract the z coordinate of the bottom of the screen which is cAz.
+				// then divide by the length of the left side of the screen, which is Lz.
+				// This converts the coordinate into a value from 0 to 1. which maps from 
+				// the bottom of the screen to the top.
+				y = SCREEN_HEIGHT - SCREEN_HEIGHT * (pz - this.screenAz) / LOGICAL_SCREEN_HEIGHT - SCREEN_HEIGHT / 2;
 				
-				if (eqRight == 0) {
-					// does not intersect
-					t = null;
+				// X is a little more complicated. The x and y coordinates of the point are guaranteed to be
+				// along the screenA-screenB vector, so determine where on the vector it is as a ratio,
+				// and then multiply the pixel screen width by that.
+				if (Math.abs(this.screenBx - this.screenAx) > Math.abs(this.screenBy - this.screenAy)) {
+					x = (px - this.screenAx) / (this.screenBx - this.screenAx);
 				} else {
-					t = eqLeft / eqRight;
-					if (t > 0) {
-						ptCount++;
-						pt = pts[i];
-						pt[0] = eyeX + t * (ax - eyeX);
-						pt[1] = eyeY + t * (ay - eyeY);
-						pt[2] = eyeZ + t * (az - eyeZ);
-					}
+					x = (py - this.screenAy) / (this.screenBy - this.screenAy);
 				}
+				x = SCREEN_WIDTH * x / LOGICAL_SCREEN_WIDTH;
+				
+				drawPts.add(Math.floor(x), Math.floor(y) - 8); // -8 just because
 			}
 			
-			// pts now represents the point in SPACE where the triangle rays intersect the screen
-			// convert these into screen coordinates
-			
-			if (ptCount == 3) {
-				i = 3;
-				
-				drawPts = [];
-				while (--i >= 0) {
-					pt = pts[i];
-					px = pt[0];
-					py = pt[1];
-					pz = pt[2];
-					
-					// y is easy enough. The left side of the screen is always vertical.
-					// subtract the z coordinate of the bottom of the screen which is cAz.
-					// then divide by the length of the left side of the screen, which is Lz.
-					// This converts the coordinate into a value from 0 to 1. which maps from 
-					// the bottom of the screen to the top.
-					y = SCREEN_HEIGHT - SCREEN_HEIGHT * (pz - cAz) / Lz - 250;
-					if (Math.abs(cBx - cAx) > Math.abs(cBy - cAy)) {
-						x = (px - cAx) / (cBx - cAx);
-					} else {
-						x = (py - cAy) / (cBy - cAy);
-					}
-					x = SCREEN_WIDTH * x / screenWidth;
-					//x = SCREEN_WIDTH * ((px - cAx) ** 2 + (py - cAy) ** 2) ** .5 / screenWidth;
-					drawPts.add(Math.floor(x), Math.floor(y));
-				}
-				
-				r = triangle[3];
-				g = triangle[4];
-				b = triangle[5];
-				GFX.Draw.triangle(drawPts[0], drawPts[1], drawPts[2], drawPts[3], drawPts[4], drawPts[5], r, g, b);
-			}
-			
+			GFX.Draw.triangle(
+				drawPts[0], drawPts[1],
+				drawPts[2], drawPts[3],
+				drawPts[4], drawPts[5], 
+				rgb[0], rgb[1], rgb[2]);
 		}
 	}
 }
