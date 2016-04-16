@@ -1,4 +1,5 @@
 class PlayScene : AbstractScene {
+	
 	constructor() : base() {
 	
 	}
@@ -7,7 +8,11 @@ class PlayScene : AbstractScene {
 		
 	}
 	
-	function render(counter) {
-		
+	function render(rc) {
+		GFX.Draw.fill(80, 180, 120);
+		bg = ImageLibrary.get('backgrounds/level1.png');
+		x = -rc % bg.width;
+		bg.draw(x, 0);
+		bg.draw(x - bg.width, 0);
 	}
 }

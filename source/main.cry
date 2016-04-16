@@ -22,9 +22,13 @@ function main() {
 		
 		scene.update();
 		
-		scene.render(counter);
+		scene.render(counter++);
 		
-		scene = scene._nextScene ?? scene;
+		next = scene._nextScene;
+		if (next != null) {
+			scene._nextScene = null;
+			scene = next;
+		}
 		
 		window.clockTick();
 	}

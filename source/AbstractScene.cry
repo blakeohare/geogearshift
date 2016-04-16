@@ -1,4 +1,4 @@
-class AbstactScene {
+class AbstractScene {
 	
 	field _nextScene = null;
 	
@@ -10,5 +10,10 @@ class AbstactScene {
 	
 	function render(counter) {
 		Core.assert(false);
+	}
+	
+	function switchScene(scene) {
+		this._nextScene = scene;
+		scene._nextScene = null;
 	}
 }
