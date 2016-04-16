@@ -1,1 +1,130 @@
-// nothing here yet.
+import Math;
+
+class Renderer {
+	
+	field playscene;
+	field roadTriangles = [];
+	
+	constructor(playscene) {
+		this.playscene = playscene;
+		
+		segments = playscene.roadSegments;
+		length = segments.length;
+		for (i = 0; i < length - 1; ++i) {
+			firstPair = segments[i];
+			secondPair = segments[(i + 1) % length];
+			a = firstPair[0];
+			b = firstPair[1];
+			c = secondPair[0];
+			d = secondPair[1];
+			this.roadTriangles.add([a, b, c], [c, b, d]);
+		}
+	}
+	
+	function render(counter) {
+		eyeX = 0.0 - counter / 100.0;
+		eyeY = -10.0;
+		eyeZ = 1.5;
+		
+		
+		screenX = 0.0; //  - counter / 100.0;
+		screenY = -3.0;
+		screenZ = eyeZ;
+		
+		screenHeight = 2.2;
+		screenWidth = screenHeight * SCREEN_WIDTH / SCREEN_HEIGHT;
+		
+		theta = -Math.arctan(eyeY - screenY, eyeX - screenX);
+		theta += Math.PI / 2;
+		
+		cAx = screenX + Math.cos(theta) * screenWidth / 2;
+		cAy = screenY + Math.sin(theta) * screenWidth / 2;
+		cAz = 0.5;
+		
+		cBx = 2 * screenX - cAx;
+		cBy = 2 * screenY - cAy;
+		cBz = 0.5;
+		
+		// compute camera vectors (left and bottom of "screen")
+		
+		// left side of the screen is a vertical vector
+		Lx = 0.0;
+		Ly = 0.0;
+		Lz = screenHeight;
+		
+		// bottom side of the screen is level and goes between cA and cB
+		Bx = cBx - cAx;
+		By = cBy - cAy;
+		Bz = cBz - cAz;
+		
+		// cross product to find normal vector
+		Nx = Ly * Bz - By * Lz;
+		Ny = -(Lx * Bz - Bx * Lz);
+		Nz = Lx * By - Bx * Ly;
+		
+		N = Nx * cAx + Ny * cAy; // + Nz * cAz (which is 0)
+		
+		// The equation of the camera Plane is Nx * x + Ny * y + Nz * z = N
+		camera = [eyeX, eyeY, eyeZ, Nx, Ny, Nz, N];
+		
+		pts = [
+			[0] * 3,
+			[0] * 3,
+			[0] * 3];
+		alternator = true;
+		
+		colors = [[255, 0, 0], [0, 128, 0], [0, 0, 255], [255, 255, 0]];
+		for (triangle : this.roadTriangles) {
+			
+			ptCount = 0;
+			i = 3;
+			while (--i >= 0) {
+				triPoint = triangle[i];
+				ax = triPoint[0];
+				ay = triPoint[1];
+				az = 0.0; // triangles are on ground.
+				
+				eqLeft = N - Nx * eyeX - Ny * eyeY - Nz * eyeZ;
+				eqRight = Nx * (ax - eyeX) + Ny * (ay - eyeY) + Nz * (az - eyeZ);
+				
+				if (eqRight == 0) {
+					// does not intersect
+					t = null;
+				} else {
+					t = eqLeft / eqRight;
+					if (t > 0) {
+						ptCount++;
+						pts[i][0] = eyeX + -t * (eyeX - ax);
+						pts[i][1] = eyeY + -t * (eyeY - ay);
+						pts[i][2] = eyeZ + -t * (eyeZ - az);
+					}
+				}
+			}
+			
+			if (ptCount == 3) {
+				i = 3;
+				
+				drawPts = [];
+				while (--i >= 0) {
+					pt = pts[i];
+					px = pt[0];
+					py = pt[1];
+					pz = pt[2];
+					
+					y = SCREEN_HEIGHT - SCREEN_HEIGHT * (pz - cAz) / Lz;
+					x = SCREEN_WIDTH * ((px - cAx) ** 2 + (py - cAy) ** 2) ** .5 / screenWidth;
+					drawPts.add(Math.floor(x), Math.floor(y));
+				}
+				
+				c = colors[0];
+				r = c[0];
+				g = c[1];
+				b = c[2];
+				
+				GFX.Draw.triangle(drawPts[0], drawPts[1], drawPts[2], drawPts[3], drawPts[4], drawPts[5], r, g, b);
+			}
+			
+			colors = colors[1:] + [colors[0]];
+		}
+	}
+}
