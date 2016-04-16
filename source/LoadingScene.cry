@@ -14,6 +14,7 @@ class LoadingScene : AbstractScene {
 		this.progress = this.loader.getProgress();
 		if (this.loader.isDone()) {
 			this.switchScene(new FadeTransitionScene(this, new TitleScene()));
+			JukeBox.play('title');
 		}
 	}
 	

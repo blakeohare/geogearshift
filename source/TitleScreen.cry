@@ -14,6 +14,7 @@ class TitleScene : AbstractScene {
 			switch (key) {
 				case Action.ENTER:
 					this.switchScene(new FadeTransitionScene(this, new PlayScene()));
+					JukeBox.play('level1');
 					break;
 			}
 		}

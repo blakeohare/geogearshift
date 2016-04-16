@@ -1,0 +1,27 @@
+import Audio;
+
+class JukeBox {
+	static field songs = {};
+	
+	static field filenameById = {
+		'level1': 'DrivingBeat',
+		'title': 'TitleScreen',
+	};
+	
+	static function _getSong(id) {
+		music = JukeBox.songs.get(id);
+		if (music == null) {
+			music = Audio.Music.loadFromResource('music/' + JukeBox.filenameById[id] + '.ogg');
+			JukeBox.songs[id] = music;
+		}
+		return music;
+	}
+	
+	static function play(id) {
+		JukeBox._getSong(id).play(true);
+	}
+	
+	static function transition(id) {
+		JukeBox._getSong(id).fadeOutAndPlay(true, FPS * 3);
+	}
+}
