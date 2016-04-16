@@ -1,0 +1,14 @@
+class AbstactScene {
+	
+	field _nextScene = null;
+	
+	constructor() { }
+	
+	function update() {
+		Core.assert(false);
+	}
+	
+	function render(counter) {
+		Core.assert(false);
+	}
+}

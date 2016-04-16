@@ -1,0 +1,13 @@
+class PlayScene : AbstractScene {
+	constructor() : base() {
+	
+	}
+	
+	function update() {
+		
+	}
+	
+	function render(counter) {
+		
+	}
+}

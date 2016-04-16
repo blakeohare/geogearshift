@@ -1,0 +1,7 @@
+// Nothing here yet.
+
+class Player {
+	constructor() {
+	
+	}
+}

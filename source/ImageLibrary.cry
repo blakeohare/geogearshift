@@ -1,0 +1,14 @@
+import GFX;
+
+class ImageLibrary {
+	static field images = {};
+	
+	static function get(path) {
+		img = ImageLibrary.images.get(path);
+		if (img == null) {
+			img = GFX.ImageLoader.fromResource('images/' + path).getImage();
+			ImageLibrary.images[path] = img;
+		}
+		return img;
+	}
+}

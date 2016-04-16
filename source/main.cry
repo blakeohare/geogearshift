@@ -1,0 +1,31 @@
+import Game;
+import GFX;
+import Math;
+
+const FPS = 60;
+const SCREEN_WIDTH = 800;
+const SCREEN_HEIGHT = 500;
+
+function main() {
+	window = new GameWindow("Geo Gearshift", FPS, SCREEN_WIDTH, SCREEN_HEIGHT);
+	
+	counter = 0;
+	scene = new LoadingScene();
+	
+	while (true) {
+		for (event : window.pumpEvents()) {
+			switch (event.type) {
+				case EventType.QUIT:
+					return;
+			}
+		}
+		
+		scene.update();
+		
+		scene.render(counter);
+		
+		scene = scene._nextScene ?? scene;
+		
+		window.clockTick();
+	}
+}
