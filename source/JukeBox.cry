@@ -22,6 +22,6 @@ class JukeBox {
 	}
 	
 	static function transition(id) {
-		JukeBox._getSong(id).fadeOutAndPlay(true, FPS * 3);
+		JukeBox._getSong(id).fadeOutAndPlay(true, 3);
 	}
 }
