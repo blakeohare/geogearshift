@@ -1,7 +1,40 @@
 // Nothing here yet.
 
+import Math;
+
+const ROTATION_VELOCITY = TWO_PI * .01; // 1%
+const ACCEL_RATE = 0.05;
+
 class Player {
-	constructor() {
 	
+	field x;
+	field y;
+	
+	field theta; // 0 is facing the positive y axis and goes clockiwse
+	
+	constructor(x, y, theta) {
+		this.x = x + 0.0;
+		this.y = y + 0.0;
+		this.theta = theta + 0.0;
+	}
+	
+	function update(accelPressed, brakePressed, goLeft, goRight) {
+		if (goLeft) {
+			this.theta -= ROTATION_VELOCITY;
+		} else if (goRight) {
+			this.theta += ROTATION_VELOCITY;
+		}
+		
+		// This is all just temporary.
+		// Want basic controls to move around in a controlled fashion for now while I test the renderer.
+		v = 0;
+		if (accelPressed) {
+			v = .05;
+		} else if (brakePressed) {
+			v = -.05;
+		}
+		
+		this.x += Math.sin(this.theta) * v;
+		this.y += Math.cos(this.theta) * v;
 	}
 }

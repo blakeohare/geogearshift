@@ -4,7 +4,7 @@ class AbstractScene {
 	
 	constructor() { }
 	
-	function update() {
+	function update(pressedKeys) {
 		Core.assert(false);
 	}
 	

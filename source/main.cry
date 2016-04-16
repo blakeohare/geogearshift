@@ -6,21 +6,63 @@ const FPS = 60;
 const SCREEN_WIDTH = 800;
 const SCREEN_HEIGHT = 500;
 
+const TWO_PI = Math.PI * 2;
+const HALF_PI = Math.PI / 2;
+
+enum Action {
+	UP,
+	DOWN,
+	LEFT,
+	RIGHT,
+	
+	RECT,
+	TRI,
+	TALL,
+	SHORT,
+}
+
 function main() {
 	window = new GameWindow("Geo Gearshift", FPS, SCREEN_WIDTH, SCREEN_HEIGHT);
 	
 	counter = 0;
 	scene = new LoadingScene();
 	
+	pressedKeys = {
+		Action.UP: false,
+		Action.DOWN: false,
+		Action.LEFT: false,
+		Action.RIGHT: false,
+		Action.RECT: false,
+		Action.TRI: false,
+		Action.TALL: false,
+		Action.SHORT: false,
+	};
+	
 	while (true) {
 		for (event : window.pumpEvents()) {
 			switch (event.type) {
 				case EventType.QUIT:
 					return;
+				case EventType.KEY_DOWN:
+				case EventType.KEY_UP:
+					
+					action = null;
+					switch (event.key) {
+						case KeyboardKey.UP: action = Action.UP; break;
+						case KeyboardKey.DOWN: action = Action.DOWN; break;
+						case KeyboardKey.LEFT: action = Action.LEFT; break;
+						case KeyboardKey.RIGHT: action = Action.RIGHT; break;	
+					}
+					
+					if (action != null) {
+						pressedKeys[action] = event.down;
+					}
+					
+					break;
 			}
 		}
 		
-		scene.update();
+		scene.update(pressedKeys);
 		
 		scene.render(counter++);
 		

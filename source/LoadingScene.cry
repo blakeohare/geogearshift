@@ -10,7 +10,7 @@ class LoadingScene : AbstractScene {
 		this.loader = GFX.ImageSheetLoader.fromIds('everything');
 	}
 	
-	function update() {
+	function update(pressedKeys) {
 		this.progress = this.loader.getProgress();
 		if (this.loader.isDone()) {
 			this.switchScene(new PlayScene());

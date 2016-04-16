@@ -8,21 +8,24 @@ class PlayScene : AbstractScene {
 	
 	field renderer;
 	
+	field player;
+	
 	constructor() : base() {
+		this.player = new Player(0.0, -10.0, 0.0);
 		this.renderer = new Renderer(this);
 	}
 	
-	function update() {
-		
+	function update(pressedKeys) {
+		if (this.player != null) {
+			this.player.update(
+				pressedKeys[Action.UP],
+				pressedKeys[Action.DOWN],
+				pressedKeys[Action.LEFT],
+				pressedKeys[Action.RIGHT]);
+		}
 	}
 	
 	function render(rc) {
-		GFX.Draw.fill(80, 180, 120);
-		bg = ImageLibrary.get('backgrounds/level1.png');
-		x = -rc % bg.width;
-		bg.draw(x, 0);
-		bg.draw(x - bg.width, 0);
-		
 		this.renderer.render(rc);
 	}
 }
