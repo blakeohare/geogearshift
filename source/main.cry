@@ -56,13 +56,18 @@ function main() {
 						case KeyboardKey.UP: action = Action.UP; break;
 						case KeyboardKey.DOWN: action = Action.DOWN; break;
 						case KeyboardKey.LEFT: action = Action.LEFT; break;
-						case KeyboardKey.RIGHT: action = Action.RIGHT; break;	
+						case KeyboardKey.RIGHT: action = Action.RIGHT; break;
+						case KeyboardKey.SPACE:
+						case KeyboardKey.ENTER:
+							action = Action.ENTER;
+							break;
+						
 					}
 					
 					if (action != null) {
 						pressedKeys[action] = event.down;
 						if (event.down) {
-							pressedThisFrame = action;
+							pressedThisFrame.add(action);
 						}
 					}
 					
