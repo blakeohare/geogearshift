@@ -15,13 +15,13 @@ class PlayScene : AbstractScene {
 		this.renderer = new Renderer(this);
 	}
 	
-	function update(pressedKeys) {
+	function update(pressedKeys, pressedThisFrame) {
 		if (this.player != null) {
 			this.player.update(
-				pressedKeys[Action.UP],
-				pressedKeys[Action.DOWN],
-				pressedKeys[Action.LEFT],
-				pressedKeys[Action.RIGHT]);
+				pressedKeys.get(Action.UP, false),
+				pressedKeys.get(Action.DOWN, false),
+				pressedKeys.get(Action.LEFT, false),
+				pressedKeys.get(Action.RIGHT, false));
 		}
 	}
 	

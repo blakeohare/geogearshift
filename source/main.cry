@@ -19,6 +19,8 @@ enum Action {
 	TRI,
 	TALL,
 	SHORT,
+	
+	ENTER,
 }
 
 function main() {
@@ -36,9 +38,12 @@ function main() {
 		Action.TRI: false,
 		Action.TALL: false,
 		Action.SHORT: false,
+		Action.ENTER: false,
 	};
 	
+	pressedThisFrame = [];
 	while (true) {
+		pressedThisFrame.clear();
 		for (event : window.pumpEvents()) {
 			switch (event.type) {
 				case EventType.QUIT:
@@ -56,13 +61,16 @@ function main() {
 					
 					if (action != null) {
 						pressedKeys[action] = event.down;
+						if (event.down) {
+							pressedThisFrame = action;
+						}
 					}
 					
 					break;
 			}
 		}
 		
-		scene.update(pressedKeys);
+		scene.update(pressedKeys, pressedThisFrame);
 		
 		scene.render(counter++);
 		

@@ -1,0 +1,31 @@
+class TitleScene : AbstractScene {
+	
+	field emptyPlayscene;
+	static field titleMusic = null;
+	
+	constructor() : base() {
+		this.emptyPlayscene = new PlayScene();
+	}
+	
+	function update(pressedKeys, pressedThisFrame) {
+		this.emptyPlayscene.update({}, []);
+		
+		for (key : pressedThisFrame) {
+			switch (key) {
+				case Action.ENTER:
+					this.switchScene(new FadeTransitionScene(this, new PlayScene()));
+					break;
+			}
+		}
+	}
+	
+	function render(rc) {
+		this.emptyPlayscene.player.theta += 0.001;
+		this.emptyPlayscene.render(rc);
+		
+		title = ImageLibrary.get('menus/title.png');
+		x = (SCREEN_WIDTH - title.width) / 2;
+		y = 20;
+		title.draw(x, y);
+	}
+}
