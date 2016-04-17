@@ -37,4 +37,13 @@ class Player {
 		this.x += Math.sin(this.theta) * v;
 		this.y += Math.cos(this.theta) * v;
 	}
+	
+	/*
+		renderRow[1] -> location[x, y, z]
+		renderRow[2] -> width
+		renderRow[3] -> nullable image
+	*/
+	function renderUpdate(renderRow) {
+	
+	}
 }

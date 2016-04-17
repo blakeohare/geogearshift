@@ -4,11 +4,11 @@ import Math;
 // determine model dimensions of the screen.
 const LOGICAL_SCREEN_HEIGHT = .48;
 const LOGICAL_SCREEN_WIDTH = LOGICAL_SCREEN_HEIGHT * SCREEN_WIDTH / SCREEN_HEIGHT;
+const EYE_SCREEN_DISTANCE = 1.0; // adjust this to make the view angle wider (smaller means wider)
 
 enum ObjectType {
 	TRIANGLE,
-	CAR,
-	TREE,
+	SPRITE,
 }
 
 class Renderer {
@@ -32,7 +32,8 @@ class Renderer {
 	
 	// remaining objects for billboard images
 	// - logical width of the image.
-	// - a pointer to an image getter
+	// - an image
+	// - a pointer to an object with a renderUpdate method that takes this row in as input.
 	// (the bottom center is the sortable XYZ
 	
 	field objects = [];
@@ -81,6 +82,15 @@ class Renderer {
 				this.objects.add([ObjectType.TRIANGLE, [cx, cy, cz, 0], [a, d, c], [color, color, color]]);
 			}
 		}
+		
+		// Add player
+		this.objects.add([
+			ObjectType.SPRITE,
+			[0, 0, 0, 1],
+			.6, // logical width
+			null,
+			this.playscene.player]);
+			
 	}
 	
 	function drawBackground(playerTheta) {
@@ -113,7 +123,7 @@ class Renderer {
 	}
 	
 	function render(counter) {
-	
+		
 		player = this.playscene.player;
 		playerX = player.x;
 		playerY = player.y;
@@ -138,10 +148,10 @@ class Renderer {
 		mz = (screenZ - focusZ) / screenDistance;
 		
 		// follow that same vector to determine where the camera is located.
-		eyeScreenDistance = 1.0; // adjust this to make the view angle wider (smaller means wider)
-		this.cameraX = screenX + mx * eyeScreenDistance;
-		this.cameraY = screenY + my * eyeScreenDistance;
-		this.cameraZ = screenZ + mz * eyeScreenDistance;
+		
+		this.cameraX = screenX + mx * EYE_SCREEN_DISTANCE;
+		this.cameraY = screenY + my * EYE_SCREEN_DISTANCE;
+		this.cameraZ = screenZ + mz * EYE_SCREEN_DISTANCE;
 		
 		theta = toCamera + HALF_PI;
 		
@@ -175,19 +185,93 @@ class Renderer {
 		
 		// The equation of the camera Plane is Nx * x + Ny * y + Nz * z = Nc
 		
+		for (object : this.objects) {
+			if (object[0] == ObjectType.SPRITE) {
+				object[4].renderUpdate(object);
+			}
+		}
+		
 		for (object : this.getSortedObjects()) {
 			switch (object[0]) {
 				case ObjectType.TRIANGLE:
 					this.renderTriangle(object[2], object[3]);
 					break;
+					
+				case ObjectType.SPRITE:
+					this.renderSprite(object[1], object[2], object[3]);
+					break;
+					
 				default:
 					break;
 			}
 		}
 	}
 	
+	function renderSprite(location, logicalWidth, image) {
+		if (image == null) return;
+		pts = Renderer.pts[0];
+		pts[0] = location[0];
+		pts[1] = location[1];
+		pts[2] = location[2];
+		this.convertPointToScreen(pts);
+		x = pts[0];
+		y = pts[1];
+		dx = location[0] - this.cameraX;
+		dy = location[1] - this.cameraY;
+		dist = (dx ** 2 + dy ** 2) ** .5;
+		
+	}
+	
 	// reusable temporary point list.
 	static field pts = [[0] * 3, [0] * 3, [0] * 3];
+	
+	function shootARay(x, y, z, outPt) {
+		eqLeft = this.Nc - this.Nx * this.cameraX - this.Ny * this.cameraY - this.Nz * this.cameraZ;
+		eqRight = 
+			this.Nx * (x - this.cameraX) +
+			this.Ny * (y - this.cameraY) +
+			this.Nz * (z - this.cameraZ);
+		
+		// does not intersect, i.e. line is parallel to the screen plane.
+		if (eqRight == 0) return false;
+
+		t = eqLeft / eqRight;
+		// t < 0 indicates it's behind the camera
+		if (t < 0) return false;
+
+		outPt[0] = this.cameraX + t * (x - this.cameraX);
+		outPt[1] = this.cameraY + t * (y - this.cameraY);
+		outPt[2] = this.cameraZ + t * (z - this.cameraZ);
+
+		return true;
+	}
+	
+	function convertPointToScreen(ptsInAndOut) {
+
+		px = ptsInAndOut[0];
+		py = ptsInAndOut[1];
+		pz = ptsInAndOut[2];
+		
+		// y is easy enough. The left side of the screen is always vertical.
+		// subtract the z coordinate of the bottom of the screen which is cAz.
+		// then divide by the length of the left side of the screen, which is Lz.
+		// This converts the coordinate into a value from 0 to 1. which maps from 
+		// the bottom of the screen to the top.
+		y = SCREEN_HEIGHT - Math.floor(SCREEN_HEIGHT * (pz - this.screenAz) / LOGICAL_SCREEN_HEIGHT) - SCREEN_HEIGHT / 2;
+		
+		// X is a little more complicated. The x and y coordinates of the point are guaranteed to be
+		// along the screenA-screenB vector, so determine where on the vector it is as a ratio,
+		// and then multiply the pixel screen width by that.
+		if (Math.abs(this.screenBx - this.screenAx) > Math.abs(this.screenBy - this.screenAy)) {
+			x = (px - this.screenAx) / (this.screenBx - this.screenAx);
+		} else {
+			x = (py - this.screenAy) / (this.screenBy - this.screenAy);
+		}
+		x = SCREEN_WIDTH * x / LOGICAL_SCREEN_WIDTH;
+		
+		ptsInAndOut[0] = Math.floor(x);
+		ptsInAndOut[1] = y - 8; // -8 just because
+	}
 	
 	function renderTriangle(ABC, rgb) {
 		
@@ -196,25 +280,8 @@ class Renderer {
 		i = 3;
 		while (--i >= 0) {
 			triPoint = ABC[i];
-			
-			eqLeft = this.Nc - this.Nx * this.cameraX - this.Ny * this.cameraY - this.Nz * this.cameraZ;
-			eqRight = 
-				this.Nx * (triPoint[0] - this.cameraX) +
-				this.Ny * (triPoint[1] - this.cameraY) +
-				this.Nz * (triPoint[2] - this.cameraZ);
-			
-			if (eqRight == 0) {
-				// does not intersect, i.e. line is parallel to the screen plane.
-				t = null;
-			} else {
-				t = eqLeft / eqRight;
-				if (t > 0) { // t < 0 indicates it's behind the camera
-					ptCount++;
-					pt = Renderer.pts[i];
-					pt[0] = this.cameraX + t * (triPoint[0] - this.cameraX);
-					pt[1] = this.cameraY + t * (triPoint[1] - this.cameraY);
-					pt[2] = this.cameraZ + t * (triPoint[2] - this.cameraZ);
-				}
+			if (this.shootARay(triPoint[0], triPoint[1], triPoint[2], Renderer.pts[i])) {
+				ptCount++;
 			}
 		}
 		
@@ -227,28 +294,8 @@ class Renderer {
 			drawPts = [];
 			while (--i >= 0) {
 				pt = Renderer.pts[i];
-				px = pt[0];
-				py = pt[1];
-				pz = pt[2];
-				
-				// y is easy enough. The left side of the screen is always vertical.
-				// subtract the z coordinate of the bottom of the screen which is cAz.
-				// then divide by the length of the left side of the screen, which is Lz.
-				// This converts the coordinate into a value from 0 to 1. which maps from 
-				// the bottom of the screen to the top.
-				y = SCREEN_HEIGHT - SCREEN_HEIGHT * (pz - this.screenAz) / LOGICAL_SCREEN_HEIGHT - SCREEN_HEIGHT / 2;
-				
-				// X is a little more complicated. The x and y coordinates of the point are guaranteed to be
-				// along the screenA-screenB vector, so determine where on the vector it is as a ratio,
-				// and then multiply the pixel screen width by that.
-				if (Math.abs(this.screenBx - this.screenAx) > Math.abs(this.screenBy - this.screenAy)) {
-					x = (px - this.screenAx) / (this.screenBx - this.screenAx);
-				} else {
-					x = (py - this.screenAy) / (this.screenBy - this.screenAy);
-				}
-				x = SCREEN_WIDTH * x / LOGICAL_SCREEN_WIDTH;
-				
-				drawPts.add(Math.floor(x), Math.floor(y) - 8); // -8 just because
+				this.convertPointToScreen(pt);
+				drawPts.add(pt[0], pt[1]);
 			}
 			
 			GFX.Draw.triangle(
