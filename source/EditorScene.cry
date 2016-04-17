@@ -1,3 +1,4 @@
+import FileIO;
 import Game;
 import GFX;
 import Math;
@@ -38,15 +39,16 @@ class EditorScene : AbstractScene {
 	constructor() : base() {
 		
 		this.course = new Course(LEVEL_TO_EDIT);
-		
-		if (this.points.length < 4) {
+		coursePoints = this.course.points;
+		if (coursePoints.length < 4) {
+			this.points = [];
 			// Add a unit square.
 			this.points.add([-.5, 0.0, 0, 0]);
 			this.points.add([.5, 0.0, 0, 0]);
 			this.points.add([-.5, 1.0, 0, 0]);
 			this.points.add([.5, 1.0, 0, 0]);
 		} else {
-			for (point : this.course.points) {
+			for (point : coursePoints) {
 				this.points.add(point + [0, 0]);
 			}
 		}
@@ -70,6 +72,26 @@ class EditorScene : AbstractScene {
 		this.targetBounds = this.bounds.clone();
 		
 		print("Now editing: " + this.course.id);
+	}
+	
+	function saveMap() {
+		output = ['{\n'];
+		if (this.course.name != null) {
+			output.add('  "name": "' + this.course.name + '",\n');
+		}
+		if (this.course.music != null) {
+			output.add('  "music": "' + this.course.music + '",\n');
+		}
+		output.add('  "points": [');
+		for (i = 0; i < this.points.length; ++i) {
+			if (i > 0) output.add(',');
+			output.add(Math.floor(this.points[i][0] * 100) / 100.0 + '');
+			output.add(',');
+			output.add(Math.floor(this.points[i][1] * 100) / 100.0 + '');
+		}
+		output.add(']\n}');
+		
+		FileIO.File.writeText(MAPS_DIRECTORY + this.course.id + '.json', output.join(''));
 	}
 	
 	function normalizeBounds(bounds) {
@@ -141,8 +163,6 @@ class EditorScene : AbstractScene {
 						ux = 1.0 * (x - left) / (right - left);
 						uy = 1.0 * (y - bottom) / (top - bottom);
 						
-						
-						print ([ux, uy]);
 						if (ux != 0 && uy != 0 && uy != 1) {
 							// check to see if the point is along the diagonal that corresponds to the line in the bounding box.
 							
@@ -186,6 +206,14 @@ class EditorScene : AbstractScene {
 	function update(pressedEvents, pressedThisFrame) {
 		for (event : this._rawEvents) {
 			switch (event.type) {
+				case EventType.KEY_DOWN:
+					if (event.key == KeyboardKey.S) {
+						
+						this.saveMap();
+						
+						print("Saved!");
+					}
+					break;
 				case EventType.MOUSE_MOVE:
 					if (this.isMouseDown) {
 						this.performDrag(event.x, SCREEN_HEIGHT - event.y);
