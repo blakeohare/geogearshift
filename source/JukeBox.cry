@@ -18,10 +18,14 @@ class JukeBox {
 	}
 	
 	static function play(id) {
-		JukeBox._getSong(id).play(true);
+		if (AUDIO_ENABLED) {
+			JukeBox._getSong(id).play(true);
+		}
 	}
 	
 	static function transition(id) {
-		JukeBox._getSong(id).fadeOutAndPlay(true, 3);
+		if (AUDIO_ENABLED) {
+			JukeBox._getSong(id).fadeOutAndPlay(true, 3);
+		}
 	}
 }
