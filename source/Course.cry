@@ -1,4 +1,5 @@
 import JSON;
+import Math;
 import Resources;
 
 /*
@@ -11,6 +12,10 @@ class Course {
 	field name;
 	field music;
 	field points = [];
+	
+	// Lookup of triangles for collision purposes.
+	// Key is floor(x / 3) * 100000 + floor(y / 3) and value is a list of triangles whose bounding box touches that region.
+	field collisionTriangles = null;
 	
 	// List of render objects
 	field roadTriangles = null;
@@ -36,11 +41,32 @@ class Course {
 				a = this.points[i - 2];
 				b = this.points[i - 1];
 				c = this.points[i];
+				avgX = (a[0] + b[0] + c[0]) / 3.0;
+				avgY = (a[1] + b[1] + c[1]) / 3.0;
+				
+				// push the points out from the center by a distance of .02 in model coordinates.
+				// TODO: something clever during the sierpinski decomposition
+				abc = [a, b, c];
+				for (j = 0; j < 3; ++j) {
+					p = abc[j];
+					vx = p[0] - avgX;
+					vy = p[1] - avgY;
+					vd = (vx ** 2 + vy ** 2) ** .5;
+					if (vd != 0) {
+						vx = vx * (vd + .1) / vd;
+						vy = vy * (vd + .1) / vd;
+					}
+					abc[j] = [vx + avgX, vy + avgY];
+				}
+				a = abc[0];
+				b = abc[1];
+				c = abc[2];
+				
 				this.roadTriangles.add([
 					ObjectType.TRIANGLE,
 					[
-						(a[0] + b[0] + c[0]) / 3.0,
-						(a[1] + b[1] + c[1]) / 3.0,
+						avgX,
+						avgY,
 						0.0,
 						0 // sort priority is low.
 					],
@@ -50,5 +76,78 @@ class Course {
 			}
 		}
 		return this.roadTriangles;
+	}
+	
+	// Find the cross product of two vectors: QR x ST
+	function crossProductSign(qx, qy, rx, ry, sx, sy, tx, ty) {
+		cp = (rx - qx) * (ty - sy) - (tx - sx) * (ry - qy);
+		if (cp < 0) return -1;
+		if (cp > 0) return 1;
+		return 0;
+	}
+	
+	function isInBounds(x, y) {
+		if (this.collisionTriangles == null) {
+			this.collisionTriangles = this.generateCollisionTriangles();
+		}
+		
+		bucket = this.collisionTriangles.get(this.getCollisionKey(x, y));
+		
+		for (triangle : bucket) {
+			a = triangle[0];
+			b = triangle[1];
+			c = triangle[2];
+			
+			ax = a[0];
+			ay = a[1];
+			bx = b[0];
+			by = b[1];
+			cx = c[0];
+			cy = c[1];
+			
+			aSign = this.crossProductSign(ax, ay, bx, by, ax, ay, x, y);
+			bSign = this.crossProductSign(bx, by, cx, cy, bx, by, x, y);
+			cSign = this.crossProductSign(cx, cy, ax, ay, cx, cy, x, y);
+			
+			if (aSign != 1 && bSign != 1 && cSign != 1) return true;
+			if (aSign != -1 && bSign != -1 && cSign != -1) return true;
+		}
+		return false;
+	}
+	
+	function getCollisionKey(x, y) {
+		return floor(x / 3) * 100000 + floor(y / 3);
+	}
+	
+	function generateCollisionTriangles() {
+		lookup = {};
+		for (triangle : this.getRoadTriangles()) {
+			abc = triangle[2].clone();
+			a = abc[0];
+			b = abc[1];
+			c = abc[2];
+			ax = a[0];
+			ay = a[1];
+			bx = b[0];
+			by = b[1];
+			cx = c[0];
+			cy = c[1];
+			left = Math.floor(Math.min(ax, Math.min(bx, cx)) / 3);
+			right = Math.floor(Math.max(ax, Math.max(bx, cx)) / 3);
+			top = Math.floor(Math.min(ay, Math.min(by, cy)) / 3);
+			bottom = Math.floor(Math.max(ay, Math.max(by, cy)) / 3);
+			for (x = left; x <= right; ++x) {
+				for (y = top; y <= bottom; ++y) {
+					key = x * 100000 + y;
+					bucket = lookup.get(key);
+					if (bucket == null) {
+						bucket = [];
+						lookup[key] = bucket;
+					}
+					bucket.add(abc);
+				}
+			}
+		}
+		return lookup;
 	}
 }

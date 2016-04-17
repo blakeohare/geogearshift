@@ -11,7 +11,7 @@ class PlayScene : AbstractScene {
 	field course;
 	
 	constructor(demoMode) : base() {
-		this.player = new Player(0.0, -10.0, 0.0);
+		this.player = new Player(0.0, 0.5, 0.0);
 		this.course = new Course('level1');
 		this.renderer = new Renderer(this, demoMode);
 	}
@@ -22,7 +22,8 @@ class PlayScene : AbstractScene {
 				pressedKeys.get(Action.UP, false),
 				pressedKeys.get(Action.DOWN, false),
 				pressedKeys.get(Action.LEFT, false),
-				pressedKeys.get(Action.RIGHT, false));
+				pressedKeys.get(Action.RIGHT, false),
+				this.course);
 		}
 	}
 	

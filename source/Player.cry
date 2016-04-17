@@ -20,7 +20,7 @@ class Player {
 		this.theta = theta + 0.0;
 	}
 	
-	function update(accelPressed, brakePressed, goLeft, goRight) {
+	function update(accelPressed, brakePressed, goLeft, goRight, course) {
 		if (goLeft) {
 			this.theta -= ROTATION_VELOCITY;
 		} else if (goRight) {
@@ -43,8 +43,16 @@ class Player {
 		this.vx *= .96;
 		this.vy *= .96;
 		
-		this.x += this.vx;
-		this.y += this.vy;
+		newX = this.x + this.vx;
+		newY = this.y + this.vy;
+		
+		if (course.isInBounds(newX, newY)) {
+			this.x = newX;
+			this.y = newY;
+		} else {
+			this.vx *= -.5;
+			this.vy *= -.5;
+		}
 	}
 	
 	/*
