@@ -297,7 +297,7 @@ class Renderer {
 		ptsInAndOut[1] = y - 8; // -8 just because
 	}
 	
-	function renderTriangle(ABC, rgb) {
+	function renderTriangle(ABC, rgb, recursionDepth = 0) {
 		
 		// how many points are on the screen?
 		ptCount = 0;
@@ -312,21 +312,57 @@ class Renderer {
 		// Renderer.pts now represents the point in SPACE where the triangle rays intersect the screen
 		// convert these into screen coordinates
 		
-		if (ptCount == 3) {
-			i = 3;
+		switch (ptCount) {
+			case 0:
+				// do nothing. triangle is behind the screen.
+				break;
+				
+			case 1:
+			case 2:
+				if (recursionDepth < 3) {
+					A = ABC[0];
+					B = ABC[1];
+					C = ABC[2];
+					sierpinAx = (B[0] + C[0]) / 2.0;
+					sierpinAy = (B[1] + C[1]) / 2.0;
+					sierpinAz = (B[2] + C[2]) / 2.0;
+					sierpinA = [sierpinAx, sierpinAy, sierpinAz];
+					
+					sierpinBx = (A[0] + C[0]) / 2.0;
+					sierpinBy = (A[1] + C[1]) / 2.0;
+					sierpinBz = (A[2] + C[2]) / 2.0;
+					sierpinB = [sierpinBx, sierpinBy, sierpinBz];
+					
+					sierpinCx = (B[0] + A[0]) / 2.0;
+					sierpinCy = (B[1] + A[1]) / 2.0;
+					sierpinCz = (B[2] + A[2]) / 2.0;
+					sierpinC = [sierpinCx, sierpinCy, sierpinCz];
+					
+					rd = recursionDepth + 1;
+					this.renderTriangle([A, sierpinB, sierpinC], rgb, rd);
+					this.renderTriangle([sierpinA, sierpinB, sierpinC], rgb, rd);
+					this.renderTriangle([B, sierpinA, sierpinC], rgb, rd);
+					this.renderTriangle([C, sierpinB, sierpinA], rgb, rd);
+				}
+				break;
+				break;
 			
-			drawPts = [];
-			while (--i >= 0) {
-				pt = Renderer.pts[i];
-				this.convertPointToScreen(pt);
-				drawPts.add(pt[0], pt[1]);
-			}
-			
-			GFX.Draw.triangle(
-				drawPts[0], drawPts[1],
-				drawPts[2], drawPts[3],
-				drawPts[4], drawPts[5], 
-				rgb[0], rgb[1], rgb[2]);
+			case 3:
+				i = 3;
+				
+				drawPts = [];
+				while (--i >= 0) {
+					pt = Renderer.pts[i];
+					this.convertPointToScreen(pt);
+					drawPts.add(pt[0], pt[1]);
+				}
+				
+				GFX.Draw.triangle(
+					drawPts[0], drawPts[1],
+					drawPts[2], drawPts[3],
+					drawPts[4], drawPts[5], 
+					rgb[0], rgb[1], rgb[2]);
+				break;
 		}
 	}
 }
