@@ -296,7 +296,7 @@ class Renderer {
 		x = SCREEN_WIDTH * x / LOGICAL_SCREEN_WIDTH;
 		
 		ptsInAndOut[0] = Math.floor(x);
-		ptsInAndOut[1] = y - 8; // -8 just because
+		ptsInAndOut[1] = y;
 	}
 	
 	function renderTriangle(ABC, rgb, recursionDepth = 0) {
@@ -349,20 +349,19 @@ class Renderer {
 				break;
 			
 			case 3:
-				i = 3;
-				
-				drawPts = [];
-				while (--i >= 0) {
-					pt = Renderer.pts[i];
-					this.convertPointToScreen(pt);
-					drawPts.add(pt[0], pt[1]);
-				}
-				
-				GFX.Draw.triangle(
-					drawPts[0], drawPts[1],
-					drawPts[2], drawPts[3],
-					drawPts[4], drawPts[5], 
-					rgb[0], rgb[1], rgb[2]);
+				pt = Renderer.pts[0];
+				this.convertPointToScreen(pt);
+				ax = pt[0];
+				ay = pt[1];
+				pt = Renderer.pts[1];
+				this.convertPointToScreen(pt);
+				bx = pt[0];
+				by = pt[1];
+				pt = Renderer.pts[2];
+				this.convertPointToScreen(pt);
+				cx = pt[0];
+				cy = pt[1];
+				GFX.Draw.triangle(ax, ay, bx, by, cx, cy, rgb[0], rgb[1], rgb[2]);
 				break;
 		}
 	}
