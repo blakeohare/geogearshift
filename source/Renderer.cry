@@ -86,7 +86,7 @@ class Renderer {
 		// Add player
 		this.objects.add([
 			ObjectType.SPRITE,
-			[0, 0, 0, 1],
+			[0, 0, 0, -1],
 			.6, // logical width
 			null,
 			this.playscene.player]);
@@ -213,13 +213,26 @@ class Renderer {
 		pts[0] = location[0];
 		pts[1] = location[1];
 		pts[2] = location[2];
+		
+		if (!this.shootARay(pts[0], pts[1], pts[2], pts)) return;
 		this.convertPointToScreen(pts);
+		
 		x = pts[0];
 		y = pts[1];
 		dx = location[0] - this.cameraX;
 		dy = location[1] - this.cameraY;
 		dist = (dx ** 2 + dy ** 2) ** .5;
+		if (dist < .1) return; // Too close!
 		
+		pixelWidth = SCREEN_WIDTH * logicalWidth / dist / LOGICAL_SCREEN_WIDTH;
+		pixelHeight = image.height * pixelWidth / image.width;
+		
+		width = Math.floor(pixelWidth + .5);
+		height = Math.floor(pixelHeight + .5);
+		left = Math.floor(x - width / 2);
+		top = Math.floor(y - height);
+		
+		image.drawStretched(left, top, width, height);
 	}
 	
 	// reusable temporary point list.

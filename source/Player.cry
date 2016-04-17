@@ -44,6 +44,8 @@ class Player {
 		renderRow[3] -> nullable image
 	*/
 	function renderUpdate(renderRow) {
-	
+		img = ImageLibrary.get('sprites/square.png');
+		
+		renderRow[3] = img;
 	}
 }

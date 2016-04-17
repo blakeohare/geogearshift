@@ -5,7 +5,7 @@ import Math;
 const FPS = 60;
 const SCREEN_WIDTH = 800;
 const SCREEN_HEIGHT = 500;
-const AUDIO_ENABLED = true;
+const AUDIO_ENABLED = false;
 
 const TWO_PI = Math.PI * 2;
 const HALF_PI = Math.PI / 2;
