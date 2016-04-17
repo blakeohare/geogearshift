@@ -61,6 +61,8 @@ class Renderer {
 		this.demoMode = demoMode;
 		this.playscene = playscene;
 		
+		// TODO: there are hairlines between triangles. When the points are converted into triangles
+		// expand them out slightly from the center of the triangle.
 		this.objects = [];
 		for (y = 0; y < 10; ++y) {
 			for (x = 0; x < 10; ++x) {
@@ -319,7 +321,7 @@ class Renderer {
 				
 			case 1:
 			case 2:
-				if (recursionDepth < 3) {
+				if (recursionDepth < 5) {
 					A = ABC[0];
 					B = ABC[1];
 					C = ABC[2];
@@ -344,7 +346,6 @@ class Renderer {
 					this.renderTriangle([B, sierpinA, sierpinC], rgb, rd);
 					this.renderTriangle([C, sierpinB, sierpinA], rgb, rd);
 				}
-				break;
 				break;
 			
 			case 3:

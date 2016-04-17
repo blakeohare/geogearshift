@@ -2,7 +2,7 @@
 
 import Math;
 
-const ROTATION_VELOCITY = TWO_PI * .01; // 1%
+const ROTATION_VELOCITY = TWO_PI * .003; // 1%
 const ACCEL_RATE = 0.05;
 
 class Player {
