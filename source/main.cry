@@ -5,7 +5,8 @@ import Math;
 const FPS = 60;
 const SCREEN_WIDTH = 800;
 const SCREEN_HEIGHT = 500;
-const AUDIO_ENABLED = false;
+
+const AUDIO_ENABLED = true;
 
 const TWO_PI = Math.PI * 2;
 const HALF_PI = Math.PI / 2;
@@ -28,7 +29,7 @@ function main() {
 	window = new GameWindow("Geo Gearshift", FPS, SCREEN_WIDTH, SCREEN_HEIGHT);
 	
 	counter = 0;
-	scene = new LoadingScene();
+	scene = EDITOR_MODE ? new EditorScene() : new LoadingScene();
 	
 	pressedKeys = {
 		Action.UP: false,
@@ -45,10 +46,13 @@ function main() {
 	pressedThisFrame = [];
 	while (true) {
 		pressedThisFrame.clear();
-		for (event : window.pumpEvents()) {
+		events = window.pumpEvents();
+		scene._rawEvents = events;
+		for (event : events) {
 			switch (event.type) {
 				case EventType.QUIT:
 					return;
+					
 				case EventType.KEY_DOWN:
 				case EventType.KEY_UP:
 					

@@ -1,0 +1,249 @@
+import Game;
+import GFX;
+import Math;
+
+const EDITOR_MODE = false;
+
+// lolhack
+const MAPS_DIRECTORY = 'C:\\Things\\GeoGearshift\\source\\levels\\';
+const LEVEL_TO_EDIT = 'level1';
+const MAP_VIEW_MARGIN = 3.0;
+
+enum MouseHoverType {
+	NONE,
+	POINT,
+	EDGE,
+}
+
+class EditorScene : AbstractScene {
+	field course;
+	
+	// a list of points. each point has a model X and Y and also a pixel X and Y that is 
+	// updated each render frame used for hit testing with the mouse.
+	field points = [];
+	
+	field bounds = [0] * 4;
+	field targetBounds = [0] * 4;
+	
+	field hoverType = MouseHoverType.NONE;
+	
+	// if a Point, this is the index of the point
+	// if an edge, it's the pair of indices as a list of size 2
+	field hoverData;
+	
+	// When you click an edge, it instantaneously converts it into a point
+	// so it is impossible to click and drag an edge.
+	field isMouseDown = false;
+	
+	constructor() : base() {
+		
+		this.course = new Course(LEVEL_TO_EDIT);
+		
+		if (this.points.length < 4) {
+			// Add a unit square.
+			this.points.add([-.5, 0.0, 0, 0]);
+			this.points.add([.5, 0.0, 0, 0]);
+			this.points.add([-.5, 1.0, 0, 0]);
+			this.points.add([.5, 1.0, 0, 0]);
+		} else {
+			for (point : this.course.points) {
+				this.points.add(point + [0, 0]);
+			}
+		}
+		
+		for (pt : this.points) {
+			x = pt[0];
+			y = pt[1];
+			if (x < this.bounds[0]) this.bounds[0] = x;
+			if (x > this.bounds[2]) this.bounds[2] = x;
+			if (y > this.bounds[1]) this.bounds[1] = y;
+			if (y < this.bounds[3]) this.bounds[3] = y;
+		}
+		
+		this.bounds[0] -= MAP_VIEW_MARGIN;
+		this.bounds[2] += MAP_VIEW_MARGIN;
+		this.bounds[1] += MAP_VIEW_MARGIN;
+		this.bounds[3] -= MAP_VIEW_MARGIN;
+		
+		this.targetBounds = this.bounds.clone();
+		
+		print("Now editing: " + this.course.id);
+	}
+	
+	function updateSelection(x, y) {
+		// First check if you're over a point since that's easy and cheap.
+		for (i = this.points.length - 1; i >= 0; --i) {
+			point = this.points[i];
+			px = point[2];
+			
+			// optimization. these checks are true 99% of the time.
+			if (x < px - 4) continue;
+			if (x > px + 4) continue;
+			
+			if ((point[2] - x) ** 2 + (point[3] - y) ** 2 < 4 ** 2) {
+				this.hoverType = MouseHoverType.POINT;
+				this.hoverData = i;
+				return;
+			}
+		}
+		
+		// Now do edges which is a little harder.
+		offsets = [-1, -2];
+		for (i = this.points.length - 1; i >= 0; --i) {
+			a = this.points[i];
+			for (offset : offsets) {
+				j = i + offset;
+				if (j >= 0) {
+					b = this.points[j];
+					
+					// check to see if x and y are in the bounding box of a and b with a little (2) tolerance
+					if (x < a[2] - 2 && x < b[2] - 2) continue;
+					if (x > a[2] + 2 && x > b[2] + 2) continue;
+					if (y < a[3] - 2 && y < b[3] - 2) continue;
+					if (y > a[3] + 2 && y > b[3] + 2) continue;
+					
+					// at this point, the number of cases that will hit this are pretty low,
+					// limited to just the lines in the immediate vicnity. So it's okay to get fancier.
+					
+					left = Math.min(a[2], b[2]);
+					right = Math.max(a[2], b[2]);
+					top = Math.max(a[3], b[3]);
+					bottom = Math.min(a[3], b[3]);
+					
+					isHit = false;
+					if (top - bottom < 5 || right - left < 5) {
+						// if the bounding box is skinny just count it as a hit.
+						isHit = true;
+					} else {
+						// stretch the box to a unit box and map the coordinate in that.
+						ux = (x - left) / (right - left);
+						uy = (y - bottom) / (top - bottom);
+						
+						if (ux != 0 && uy != 0 && uy != 1) {
+							// check to see if the point is along the diagonal that corresponds to the line in the bounding box.
+							
+							if ((a[2] < b[2] && a[3] < b[3]) ||
+								(a[2] > b[2] && a[3] > b[3])) {
+								r = uy / ux;
+							} else {
+								r = (1 - uy) / ux;
+							}
+							
+							if (Math.abs(1 - r) < .1) {
+								isHit = true;
+							}
+						}
+					}
+					
+					if (isHit) {
+						this.hoverData = [i, j];
+						this.hoverType = MouseHoverType.EDGE;
+						return;
+					}
+				}
+			}
+		}
+		
+		// No hits, clear selection.
+		this.hoverData = null;
+		this.hoverType = MouseHoverType.NONE;
+	}
+	
+	function performDrag(x, y) {
+		if (this.hoverType != MouseHoverType.POINT) return;
+		
+		point = this.points[this.hoverData];
+		x = (this.bounds[2] - this.bounds[0]) * x / SCREEN_WIDTH + this.bounds[0];
+		y = (this.bounds[1] - this.bounds[3]) * y / SCREEN_HEIGHT + this.bounds[3];
+		point[0] = x + 0.0;
+		point[1] = y + 0.0;
+	}
+	
+	function update(pressedEvents, pressedThisFrame) {
+		for (event : this._rawEvents) {
+			switch (event.type) {
+				case EventType.MOUSE_MOVE:
+					if (this.isMouseDown) {
+						this.performDrag(event.x, event.y);
+					} else {
+						this.updateSelection(event.x, event.y);
+					}
+					break;
+				case EventType.MOUSE_LEFT_DOWN:
+					
+					break;
+			}
+		}
+		
+		this.targetBounds[0] = this.points[0][0];
+		this.targetBounds[1] = this.points[0][1];
+		this.targetBounds[2] = this.points[0][0];
+		this.targetBounds[3] = this.points[0][1];
+		
+		for (point : this.points) {
+			x = point[0];
+			y = point[1];
+			if (x < this.targetBounds[0]) this.targetBounds[0] = x;
+			if (x > this.targetBounds[2]) this.targetBounds[2] = x;
+			if (y > this.targetBounds[1]) this.targetBounds[1] = y;
+			if (y < this.targetBounds[3]) this.targetBounds[3] = y;
+		}
+		
+		this.targetBounds[0] -= MAP_VIEW_MARGIN;
+		this.targetBounds[1] += MAP_VIEW_MARGIN;
+		this.targetBounds[2] += MAP_VIEW_MARGIN;
+		this.targetBounds[3] -= MAP_VIEW_MARGIN;
+		
+		for (i = 0; i < 4; ++i) {
+			this.bounds[i] = (this.bounds[i] * 19 + this.targetBounds[i]) / 20;
+		}
+		
+	}
+	
+	function render(rc) {
+		
+		GFX.Draw.fill(40, 40, 40);
+		
+		left = this.bounds[0];
+		right = this.bounds[2];
+		top = this.bounds[1];
+		bottom = this.bounds[3];
+		width = right - left;
+		height = top - bottom;
+		
+		for (point : this.points) {
+			x = Math.floor(SCREEN_WIDTH * (point[0] - left) / width);
+			y = Math.floor(SCREEN_HEIGHT * (point[1] - bottom) / height);
+			point[2] = x;
+			point[3] = y;
+		}
+		
+		highlightIndex = null; // TODO: hightlight index for edges.
+		
+		offsets = [-1, -2];
+		// draw a line from each point to the one before it. For the first one, draw a line to the point 2 after it.
+		for (i = this.points.length - 1; i >= -1; --i) {
+			
+			for (offset : offsets) {
+				j = i + offset;
+				if (j >= 0) {
+					a = this.points[i];
+					b = this.points[j];
+					GFX.Draw.line(a[2], a[3], b[2], b[3], 1, 180, 180, 180);
+				}
+			}
+		}
+		
+		highlightIndex = -1;
+		if (this.hoverType == MouseHoverType.POINT) {
+			highlightIndex = this.hoverData;
+		}
+		
+		for (i = this.points.length - 1; i >= 0; --i) {
+			point = this.points[i];
+			x = point[2] - 1;
+			y = point[3] - 1;
+			GFX.Draw.rectangle(x, y, 3, 3, 255, 255, 255);
+		}
+	}
+}

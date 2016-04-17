@@ -2,6 +2,9 @@ class AbstractScene {
 	
 	field _nextScene = null;
 	
+	// hack to get mouse events in the editor
+	field _rawEvents = [];
+	
 	constructor() { }
 	
 	function update(pressedKeys, pressedThisFrame) {

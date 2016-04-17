@@ -1,0 +1,27 @@
+import JSON;
+import Resources;
+
+/*
+	The first three points are a triangle.
+	The rest is a triangle strip.
+*/
+
+class Course {
+	field id;
+	field name;
+	field music;
+	field points = [];
+	
+	constructor(id) {
+		this.id = id;
+		json = Resources.readText('levels/' + id + '.json');
+		print(json);
+		rawData = JSON.parseJson(json);
+		this.name = rawData.get('name') ?? "Untitled level";
+		this.music = rawData.get('music');
+		points = rawData.get('points', []);
+		for (i = 0; i + 1 < points.length; i += 2) {
+			this.points.add([1.0 * points[i], 1.0 * points[i + 1]]);
+		}
+	}
+}
