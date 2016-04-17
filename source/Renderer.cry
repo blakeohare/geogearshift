@@ -17,9 +17,7 @@ class Renderer {
 	
 	// each object is a list:
 	// - a type (enum above)
-	// - sortable X
-	// - sortable Y
-	// - sortable Z
+	// - a point of the center of the object. (list of floats) and the 4th item is an integer of the sort priority.
 	// - sort priority tier (lower is closer, 0 is ground triangles, everything else that is standing upright is 1)
 	
 	// remaining objects for triangles
@@ -85,6 +83,11 @@ class Renderer {
 				this.objects.add([ObjectType.TRIANGLE, [cx, cy, cz, 0], [a, d, c], [color, color, color]]);
 			}
 		}
+	}
+	
+	function updateObjectList() {
+		this.objects.clear();
+		this.objects.concat(this.playscene.course.getRoadTriangles());
 		
 		// Add player
 		this.objects.add([
@@ -93,7 +96,6 @@ class Renderer {
 			.6, // logical width
 			null,
 			this.playscene.player]);
-			
 	}
 	
 	function drawBackground(playerTheta) {
@@ -126,6 +128,8 @@ class Renderer {
 	}
 	
 	function render(counter) {
+		
+		this.updateObjectList();
 		
 		player = this.playscene.player;
 		playerX = player.x;

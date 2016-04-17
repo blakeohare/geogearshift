@@ -12,6 +12,9 @@ class Course {
 	field music;
 	field points = [];
 	
+	// List of render objects
+	field roadTriangles = null;
+	
 	constructor(id) {
 		this.id = id;
 		json = Resources.readText('levels/' + id + '.json');
@@ -23,5 +26,28 @@ class Course {
 		for (i = 0; i + 1 < points.length; i += 2) {
 			this.points.add([1.0 * points[i], 1.0 * points[i + 1]]);
 		}
+	}
+	
+	function getRoadTriangles() {
+		if (this.roadTriangles == null) {
+			this.roadTriangles = [];
+			for (i = 2; i < this.points.length; ++i) {
+				a = this.points[i - 2];
+				b = this.points[i - 1];
+				c = this.points[i];
+				this.roadTriangles.add([
+					ObjectType.TRIANGLE,
+					[
+						(a[0] + b[0] + c[0]) / 3.0,
+						(a[1] + b[1] + c[1]) / 3.0,
+						0.0,
+						0 // sort priority is low.
+					],
+					[a + [0.0], b + [0.0], c + [0.0]],
+					[40, 40, 40],
+				]);
+			}
+		}
+		return this.roadTriangles;
 	}
 }

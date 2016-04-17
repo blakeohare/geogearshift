@@ -3,7 +3,7 @@ import Game;
 import GFX;
 import Math;
 
-const EDITOR_MODE = true;
+const EDITOR_MODE = false;
 
 // lolhack
 const MAPS_DIRECTORY = 'C:\\Things\\GeoGearshift\\source\\levels\\';
