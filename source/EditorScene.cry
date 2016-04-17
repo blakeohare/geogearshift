@@ -2,7 +2,7 @@ import Game;
 import GFX;
 import Math;
 
-const EDITOR_MODE = false;
+const EDITOR_MODE = true;
 
 // lolhack
 const MAPS_DIRECTORY = 'C:\\Things\\GeoGearshift\\source\\levels\\';
@@ -65,12 +65,34 @@ class EditorScene : AbstractScene {
 		this.bounds[1] += MAP_VIEW_MARGIN;
 		this.bounds[3] -= MAP_VIEW_MARGIN;
 		
+		this.normalizeBounds(this.bounds);
+		
 		this.targetBounds = this.bounds.clone();
 		
 		print("Now editing: " + this.course.id);
 	}
 	
+	function normalizeBounds(bounds) {
+		w = bounds[2] - bounds[0];
+		h = bounds[1] - bounds[3];
+		
+		if (1.0 * w / h > 1.0 * SCREEN_WIDTH / SCREEN_HEIGHT) {
+			// too wide, make taller
+			newH = w * SCREEN_HEIGHT / SCREEN_WIDTH;
+			y = (bounds[1] + bounds[3]) / 2.0;
+			bounds[1] = y + newH / 2;
+			bounds[3] = bounds[1] - newH;
+		} else {
+			// too tall, make wider
+			newW = h * SCREEN_WIDTH / SCREEN_HEIGHT;
+			x = (bounds[2] + bounds[0]) / 2.0;
+			bounds[0] = x - newW / 2;
+			bounds[2] = bounds[0] + newW;
+		}
+	}
+	
 	function updateSelection(x, y) {
+		
 		// First check if you're over a point since that's easy and cheap.
 		for (i = this.points.length - 1; i >= 0; --i) {
 			point = this.points[i];
@@ -136,7 +158,7 @@ class EditorScene : AbstractScene {
 					}
 					
 					if (isHit) {
-						this.hoverData = [i, j];
+						this.hoverData = [j, i];
 						this.hoverType = MouseHoverType.EDGE;
 						return;
 					}
@@ -164,13 +186,72 @@ class EditorScene : AbstractScene {
 			switch (event.type) {
 				case EventType.MOUSE_MOVE:
 					if (this.isMouseDown) {
-						this.performDrag(event.x, event.y);
+						this.performDrag(event.x, SCREEN_HEIGHT - event.y);
 					} else {
-						this.updateSelection(event.x, event.y);
+						this.updateSelection(event.x, SCREEN_HEIGHT - event.y);
 					}
 					break;
 				case EventType.MOUSE_LEFT_DOWN:
-					
+					if (this.hoverType == MouseHoverType.POINT) {
+						// TODO: prevent selections of the first 4 points.
+						this.isMouseDown = true;
+					} else if (this.hoverType == MouseHoverType.EDGE) {
+						this.isMouseDown = true;
+						pointsCount = this.points.length;
+						i = this.hoverData[0];
+						j = this.hoverData[1];
+						if (j == pointsCount - 1 &&
+							i == pointsCount - 2) {
+							a = this.points[-1];
+							b = this.points[-2];
+							this.points.add([
+								(a[0] + b[0]) / 2.0,
+								(a[1] + b[1]) / 2.0,
+								0, 0]);
+							this.hoverType = MouseHoverType.POINT;
+							this.hoverData = pointsCount;
+						} else {
+							if (j == 3) {
+								if (i != 2) {
+									this.isMouseDown = false; // ignore event
+								}
+							} else if (j < 3) {
+								this.isMouseDown = false; // ignore event
+							}
+							
+							if (this.isMouseDown) {
+								if (i % 2 == j % 2) {
+									// you clicked on an outer edge
+									// split it.
+									this.hoverData = j; // the new point will be at this index post-split.
+									if (i % 2 == 0) {
+										// even. on the left.
+										splitPoint = j;
+									} else {
+										// odd. on the right
+										splitPoint = j - 1;
+									}
+									left = this.points[:splitPoint];
+									right = this.points[splitPoint:];
+									ax = (this.points[splitPoint - 2][0] + this.points[splitPoint][0]) / 2;
+									ay = (this.points[splitPoint - 2][1] + this.points[splitPoint][1]) / 2;
+									bx = (this.points[splitPoint - 1][0] + this.points[splitPoint + 1][0]) / 2;
+									by = (this.points[splitPoint - 1][1] + this.points[splitPoint + 1][1]) / 2;
+									this.points = left + [[ax, ay, 0, 0], [bx, by, 0, 0]] + right;
+									this.hoverType = MouseHoverType.POINT;
+								} else {
+									// you clicked on a left-right connector
+									this.isMouseDown = false;
+									// not really much to do here.
+								}
+							}
+						}
+					}
+					break;
+				
+				case EventType.MOUSE_LEFT_UP:
+					this.hoverType = MouseHoverType.NONE;
+					this.isMouseDown = false;
 					break;
 			}
 		}
@@ -194,10 +275,11 @@ class EditorScene : AbstractScene {
 		this.targetBounds[2] += MAP_VIEW_MARGIN;
 		this.targetBounds[3] -= MAP_VIEW_MARGIN;
 		
+		this.normalizeBounds(this.targetBounds);
+		
 		for (i = 0; i < 4; ++i) {
 			this.bounds[i] = (this.bounds[i] * 19 + this.targetBounds[i]) / 20;
 		}
-		
 	}
 	
 	function render(rc) {
@@ -219,7 +301,11 @@ class EditorScene : AbstractScene {
 		}
 		
 		highlightIndex = null; // TODO: hightlight index for edges.
-		
+		secondaryIndex = null;
+		if (this.hoverType == MouseHoverType.EDGE) {
+			highlightIndex = Math.max(this.hoverData[0], this.hoverData[1]);
+			secondaryIndex = Math.min(this.hoverData[0], this.hoverData[1]);
+		}
 		offsets = [-1, -2];
 		// draw a line from each point to the one before it. For the first one, draw a line to the point 2 after it.
 		for (i = this.points.length - 1; i >= -1; --i) {
@@ -229,7 +315,15 @@ class EditorScene : AbstractScene {
 				if (j >= 0) {
 					a = this.points[i];
 					b = this.points[j];
-					GFX.Draw.line(a[2], a[3], b[2], b[3], 1, 180, 180, 180);
+					width = 1;
+					red = 180;
+					blue = 180;
+					if (i == highlightIndex && j == secondaryIndex) {
+						width = 3;
+						red = 255;
+						blue = 0;
+					}
+					GFX.Draw.line(a[2], SCREEN_HEIGHT - a[3], b[2], SCREEN_HEIGHT - b[3], width, red, 180, blue);
 				}
 			}
 		}
@@ -241,9 +335,20 @@ class EditorScene : AbstractScene {
 		
 		for (i = this.points.length - 1; i >= 0; --i) {
 			point = this.points[i];
-			x = point[2] - 1;
-			y = point[3] - 1;
-			GFX.Draw.rectangle(x, y, 3, 3, 255, 255, 255);
+			rgb = EditorScene.WHITE;
+			x = point[2];
+			y = SCREEN_HEIGHT - point[3];
+			size = 3;
+			if (i == highlightIndex) {
+				rgb = EditorScene.RED;
+				size = 6;
+			}
+			x -= size / 2;
+			y -= size / 2;
+			rgb = i == highlightIndex ? EditorScene.RED : EditorScene.WHITE;
+			GFX.Draw.rectangle(x, y, size, size, rgb[0], rgb[1], rgb[2]);
 		}
 	}
+	static field RED = [255, 0, 0];
+	static field WHITE = [255, 255, 255];
 }
