@@ -45,6 +45,12 @@ class Player {
 	*/
 	function renderUpdate(renderRow) {
 		img = ImageLibrary.get('sprites/square.png');
+		loc = renderRow[1];
+		loc[0] = this.x;
+		loc[1] = this.y;
+		loc[2] = 0.0;
+		
+		renderRow[2] = .3; // seems about right.
 		
 		renderRow[3] = img;
 	}

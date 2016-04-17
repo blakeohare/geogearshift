@@ -4,7 +4,7 @@ class TitleScene : AbstractScene {
 	static field titleMusic = null;
 	
 	constructor() : base() {
-		this.emptyPlayscene = new PlayScene();
+		this.emptyPlayscene = new PlayScene(true);
 	}
 	
 	function update(pressedKeys, pressedThisFrame) {
@@ -13,7 +13,7 @@ class TitleScene : AbstractScene {
 		for (key : pressedThisFrame) {
 			switch (key) {
 				case Action.ENTER:
-					this.switchScene(new FadeTransitionScene(this, new PlayScene()));
+					this.switchScene(new FadeTransitionScene(this, new PlayScene(false)));
 					JukeBox.transition('level1');
 					break;
 			}

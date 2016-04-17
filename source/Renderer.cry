@@ -57,7 +57,10 @@ class Renderer {
 	field screenBy = 0;
 	field screenBz = 0;
 	
-	constructor(playscene) {
+	field demoMode;
+	
+	constructor(playscene, demoMode) {
+		this.demoMode = demoMode;
 		this.playscene = playscene;
 		
 		this.objects = [];
@@ -86,7 +89,7 @@ class Renderer {
 		// Add player
 		this.objects.add([
 			ObjectType.SPRITE,
-			[0, 0, 0, -1],
+			[0, 0, 0, 1],
 			.6, // logical width
 			null,
 			this.playscene.player]);
@@ -114,7 +117,7 @@ class Renderer {
 		dy = loc[1] - this.cameraY;
 		dz = loc[2] - this.cameraZ;
 		priorityTier = loc[3];
-		return (dx ** 2 + dy ** 2 + dz ** 2) ** .5 - 10000000.0 * priorityTier;
+		return (dx ** 2 + dy ** 2 + dz ** 2) ** .5 + 10000000.0 * priorityTier;
 	}
 	
 	function getSortedObjects() {
@@ -198,7 +201,11 @@ class Renderer {
 					break;
 					
 				case ObjectType.SPRITE:
-					this.renderSprite(object[1], object[2], object[3]);
+					if (this.demoMode && object[4] == player) {
+						// Do not render the player sprite in demo mode.
+					} else {
+						this.renderSprite(object[1], object[2], object[3]);
+					}
 					break;
 					
 				default:

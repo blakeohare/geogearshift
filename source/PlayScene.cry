@@ -8,11 +8,11 @@ class PlayScene : AbstractScene {
 	
 	field renderer;
 	
-	field player;
+	field player = null;
 	
-	constructor() : base() {
+	constructor(demoMode) : base() {
 		this.player = new Player(0.0, -10.0, 0.0);
-		this.renderer = new Renderer(this);
+		this.renderer = new Renderer(this, demoMode);
 	}
 	
 	function update(pressedKeys, pressedThisFrame) {
