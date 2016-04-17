@@ -138,9 +138,11 @@ class EditorScene : AbstractScene {
 						isHit = true;
 					} else {
 						// stretch the box to a unit box and map the coordinate in that.
-						ux = (x - left) / (right - left);
-						uy = (y - bottom) / (top - bottom);
+						ux = 1.0 * (x - left) / (right - left);
+						uy = 1.0 * (y - bottom) / (top - bottom);
 						
+						
+						print ([ux, uy]);
 						if (ux != 0 && uy != 0 && uy != 1) {
 							// check to see if the point is along the diagonal that corresponds to the line in the bounding box.
 							
@@ -223,22 +225,28 @@ class EditorScene : AbstractScene {
 								if (i % 2 == j % 2) {
 									// you clicked on an outer edge
 									// split it.
-									this.hoverData = j; // the new point will be at this index post-split.
-									if (i % 2 == 0) {
-										// even. on the left.
-										splitPoint = j;
+									
+									if (j == pointsCount - 1) {
+										// can't split the last outer edge. 
+										this.isMouseDown = false;
 									} else {
-										// odd. on the right
-										splitPoint = j - 1;
+										this.hoverData = j; // the new point will be at this index post-split.
+										if (i % 2 == 0) {
+											// even. on the left.
+											splitPoint = j;
+										} else {
+											// odd. on the right
+											splitPoint = j - 1;
+										}
+										left = this.points[:splitPoint];
+										right = this.points[splitPoint:];
+										ax = (this.points[splitPoint - 2][0] + this.points[splitPoint][0]) / 2;
+										ay = (this.points[splitPoint - 2][1] + this.points[splitPoint][1]) / 2;
+										bx = (this.points[splitPoint - 1][0] + this.points[splitPoint + 1][0]) / 2;
+										by = (this.points[splitPoint - 1][1] + this.points[splitPoint + 1][1]) / 2;
+										this.points = left + [[ax, ay, 0, 0], [bx, by, 0, 0]] + right;
+										this.hoverType = MouseHoverType.POINT;
 									}
-									left = this.points[:splitPoint];
-									right = this.points[splitPoint:];
-									ax = (this.points[splitPoint - 2][0] + this.points[splitPoint][0]) / 2;
-									ay = (this.points[splitPoint - 2][1] + this.points[splitPoint][1]) / 2;
-									bx = (this.points[splitPoint - 1][0] + this.points[splitPoint + 1][0]) / 2;
-									by = (this.points[splitPoint - 1][1] + this.points[splitPoint + 1][1]) / 2;
-									this.points = left + [[ax, ay, 0, 0], [bx, by, 0, 0]] + right;
-									this.hoverType = MouseHoverType.POINT;
 								} else {
 									// you clicked on a left-right connector
 									this.isMouseDown = false;
