@@ -113,6 +113,9 @@ class Renderer {
 		if (x < SCREEN_WIDTH) {
 			bg.draw(x, 0);
 		}
+		
+		gradient = ImageLibrary.get('backgrounds/gradient.png');
+		gradient.draw(0, 250);
 	}
 	
 	function getObjectDistance(object) {
@@ -361,7 +364,15 @@ class Renderer {
 				this.convertPointToScreen(pt);
 				cx = pt[0];
 				cy = pt[1];
-				GFX.Draw.triangle(ax, ay, bx, by, cx, cy, rgb[0], rgb[1], rgb[2]);
+				r = rgb[0];
+				g = rgb[1];
+				b = rgb[2];
+				GFX.Draw.triangle(ax, ay, bx, by, cx, cy, r, g, b);
+				if (recursionDepth > 0) {
+					GFX.Draw.line(ax, ay, bx, by, 2, r, g, b);
+					GFX.Draw.line(ax, ay, cx, cy, 2, r, g, b);
+					GFX.Draw.line(cx, cy, bx, by, 2, r, g, b);
+				}
 				break;
 		}
 	}

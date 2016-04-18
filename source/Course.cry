@@ -53,8 +53,8 @@ class Course {
 					vy = p[1] - avgY;
 					vd = (vx ** 2 + vy ** 2) ** .5;
 					if (vd != 0) {
-						vx = vx * (vd + .1) / vd;
-						vy = vy * (vd + .1) / vd;
+						vx = vx * (vd + .04) / vd;
+						vy = vy * (vd + .04) / vd;
 					}
 					abc[j] = [vx + avgX, vy + avgY];
 				}
