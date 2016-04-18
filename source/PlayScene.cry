@@ -1,3 +1,5 @@
+const TIME_BONUS_HUD_COUNTER_MAX = FPS / 2;
+
 class PlayScene : AbstractScene {
 	
 	field roadSegments = [
@@ -10,10 +12,12 @@ class PlayScene : AbstractScene {
 	field renderer;
 	field player;
 	field course;
-	field timeLeft = 90.0;
+	field timeLeft = 45.0;
 	field previousFrameTime = Core.currentTime();
 	field gateCount = 0;
 	field timeBonus = 5.0;
+	field timeBonusHudCounter = -1;
+	field timeBonusHudDisplay = null;
 	
 	constructor(demoMode) : base() {
 		this.demoMode = demoMode;
@@ -76,6 +80,9 @@ class PlayScene : AbstractScene {
 					this.course.removeGateway(i);
 					if (this.player.currentShape == gateway.type) {
 						this.timeLeft += this.timeBonus;
+						this.timeBonusHudCounter = TIME_BONUS_HUD_COUNTER_MAX;
+						this.timeBonusHudDisplay = ('+' + (Math.floor(this.timeBonus * 100) / 100.0))[:5]; // :5 just in case some weird floating point issue on a platform.
+						
 						JukeBox.playSound('correct');
 						this.gateCount++;
 						this.timeBonus *= .97;
@@ -108,6 +115,13 @@ class PlayScene : AbstractScene {
 			timeleft = ImageLibrary.get('menus/timeleft.png');
 			timeleft.draw(10, 10);
 			TextRenderer.draw(display, 10, 17 + timeleft.height);
+			
+			if (this.timeBonusHudCounter > 0) {
+				this.timeBonusHudCounter--;
+				progress = 1.0 - 1.0 * this.timeBonusHudCounter / TIME_BONUS_HUD_COUNTER_MAX;
+				yOffset = Math.floor(progress * -100);
+				TextRenderer.draw(this.timeBonusHudDisplay, SCREEN_WIDTH / 2 - 20, SCREEN_HEIGHT / 3 + yOffset);
+			}
 		}
 	}
 }
