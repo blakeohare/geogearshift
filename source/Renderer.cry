@@ -92,7 +92,7 @@ class Renderer {
 		this.objects.concat(this.playscene.course.getRoadTriangles());
 		//this.objects.concat(this.playscene.course.getPathPointMarkers());
 		for (gateway : this.playscene.course.getGatewayObjects()) {
-			this.objects.concat(gateway[2]);
+			this.objects.concat(gateway.triangles);
 		}
 		
 		// Add player

@@ -250,6 +250,13 @@ class Course {
 						break;
 				}
 				
+				/*
+					b---------------d
+					|               |
+					ip    g--h      jp
+					|     |  |      |
+					a-----e  f------c
+				*/
 				
 				ex = lx + (rx - lx) * (opening - width);
 				ey = ly + (ry - ly) * (opening - width);
@@ -270,22 +277,10 @@ class Course {
 					h = g;
 				}
 				
-				/*
-					b---------------d
-					|               |
-					ip    g--h      jp
-					|     |  |      |
-					a-----e  f------c
-				*/
-				
-				gateways.add([
-					[lx, ly],
-					[rx, ry],
+				gateways.add(new Gateway([lx, ly], [rx, ry], opening, 
 					makeTrianglesForQuad(b, d, jp, ip, rgb) +
 					makeTrianglesForQuad(a, ip, g, e, rgb) +
-					makeTrianglesForQuad(h, jp, c, f, rgb)
-					]);
-				
+					makeTrianglesForQuad(h, jp, c, f, rgb)));
 			}
 			this.gatewayObjects = gateways;
 		}

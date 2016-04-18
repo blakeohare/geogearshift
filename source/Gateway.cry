@@ -1,0 +1,15 @@
+class Gateway {
+	field left;
+	field right;
+	field center;
+	field triangles;
+	field opening;
+	
+	constructor(left, right, opening, triangles) {
+		this.left = left;
+		this.right = right;
+		this.opening = opening;
+		this.triangles = triangles;
+		this.center = [(left[0] + right[0]) / 2.0, (left[1] + right[1]) / 2.0];
+	}
+}
