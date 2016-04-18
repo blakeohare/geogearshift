@@ -37,6 +37,15 @@ class Player {
 	}
 	
 	function update(accelPressed, brakePressed, goLeft, goRight, course, shapeChange) {
+		// OMGHAX
+		// switched FPS from 60 to 30 since JS can't keep up and most people will be playing
+		// the JS version. Apply physics updates twice to keep math the same.
+		for (i = 0; i < 2; ++i) {
+			this.updateImpl(accelPressed, brakePressed, goLeft, goRight, course, shapeChange);
+		}
+	}
+	
+	function updateImpl(accelPressed, brakePressed, goLeft, goRight, course, shapeChange) {
 		
 		// trigger a shape change
 		this.changeCounter--;

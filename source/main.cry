@@ -2,7 +2,7 @@ import Game;
 import GFX;
 import Math;
 
-const FPS = 60;
+const FPS = 30;
 const SCREEN_WIDTH = 800;
 const SCREEN_HEIGHT = 500;
 
