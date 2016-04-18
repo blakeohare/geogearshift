@@ -1,0 +1,13 @@
+class Theme {
+	field id;
+	field background;
+	field treeImage;
+	field rgb;
+	
+	constructor(id) {
+		this.id = id;
+		this.background = ImageLibrary.get('backgrounds/level' + this.id + '.png');
+		this.treeImage = ImageLibrary.get('billboards/nature_tree1.png');
+		this.rgb = [80, 180, 120];
+	}
+}

@@ -4,10 +4,10 @@ class Tree {
 	field y;
 	field img;
 	
-	constructor(x, y) {
+	constructor(x, y, img) {
 		this.x = x;
 		this.y = y;
-		this.img = ImageLibrary.get('billboards/nature_tree1.png');
+		this.img = img;
 	}
 	
 	function renderUpdate(renderRow) {

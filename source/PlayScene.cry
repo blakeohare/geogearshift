@@ -21,11 +21,11 @@ class PlayScene : AbstractScene {
 	
 	field timeSurvived = 0.0;
 	
-	constructor(demoMode) : base() {
+	constructor(demoMode, theme) : base() {
 		this.demoMode = demoMode;
 		this.player = new Player(0.0, 0.5, 0.0);
 		this.course = new Course('level1');
-		this.renderer = new Renderer(this, demoMode);
+		this.renderer = new Renderer(this, demoMode, theme);
 	}
 	
 	function update(pressedKeys, pressedThisFrame) {

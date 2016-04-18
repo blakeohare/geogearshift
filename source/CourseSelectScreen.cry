@@ -1,0 +1,46 @@
+class CourseSelectScreen : AbstractScene {
+	
+	field themes;
+	field index = 0;
+	constructor() : base() {
+		this.themes = [
+			new Theme(1),
+			new Theme(2),
+			new Theme(3),
+		];
+	}
+	
+	function update(pressedKeys, pressedThisFrame) {
+		
+		oldIndex = this.index;
+		commit = false;
+		for (action : pressedThisFrame) {
+			switch (action) {
+				case Action.UP:
+					this.index--;
+					break;
+				case Action.DOWN:
+					this.index++;
+					break;
+				case Action.ENTER:
+					commit = true;
+					break;
+			}
+		}
+		
+		if (this.index < 0) this.index = 0;
+		if (this.index >= this.themes.length) this.index = this.themes.length - 1;
+		
+		if (commit) {
+			this.startGame(this.themes[this.index]);
+		}
+	}
+	
+	function startGame(theme) {
+		
+	}
+	
+	function render(rc) {
+		
+	}
+}

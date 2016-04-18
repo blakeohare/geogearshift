@@ -8,7 +8,7 @@ class TitleScene : AbstractScene {
 	static field titleMusic = null;
 	
 	constructor(bg = null) : base() {
-		this.emptyPlayscene = bg ?? new PlayScene(true);
+		this.emptyPlayscene = bg ?? new PlayScene(true, new Theme(1));
 	}
 	
 	function update(pressedKeys, pressedThisFrame) {
@@ -39,7 +39,7 @@ class TitleScene : AbstractScene {
 		if (commit) {
 			if (this.index == 0) {
 				this.flashCursorMode = true;
-				this.switchScene(new FadeTransitionScene(this, new PlayScene(false)));
+				this.switchScene(new FadeTransitionScene(this, new PlayScene(false, new Theme(1))));
 				JukeBox.transition('level1');
 			} else if (this.index == 1) {
 				this.switchScene(new InstructionsScreen(this.emptyPlayscene));

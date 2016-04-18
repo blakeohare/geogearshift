@@ -36,6 +36,8 @@ class Renderer {
 	
 	field objects = [];
 	
+	field theme;
+	
 	field cameraX = 0;
 	field cameraY = 0;
 	field cameraZ = 0;
@@ -57,7 +59,8 @@ class Renderer {
 	
 	field demoMode;
 	
-	constructor(playscene, demoMode) {
+	constructor(playscene, demoMode, theme) {
+		this.theme = theme;
 		this.demoMode = demoMode;
 		this.playscene = playscene;
 		
@@ -116,7 +119,7 @@ class Renderer {
 					[x, y, .2, 1],
 					.8,
 					null, 
-					new Tree(x, y)
+					new Tree(x, y, this.theme.treeImage)
 				]);
 			}
 		}
@@ -125,8 +128,9 @@ class Renderer {
 	
 	function drawBackground(playerTheta) {
 		anglePercent = (playerTheta / Math.PI) % 1.0;
-		GFX.Draw.fill(80, 180, 120);
-		bg = ImageLibrary.get('backgrounds/level1.png');
+		rgb = this.theme.rgb;
+		GFX.Draw.fill(rgb[0], rgb[1], rgb[2]);
+		bg = this.theme.background;
 		
 		offset = Math.floor(anglePercent * bg.width);
 		
