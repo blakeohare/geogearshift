@@ -225,36 +225,65 @@ class Course {
 				d = [rx, ry, gatewayHeight];
 				
 				opening = Random.randomFloat() * .3 + .35;
-				ex = lx + (rx - lx) * (opening - .1);
-				ey = ly + (ry - ly) * (opening - .1);
-				fx = lx + (rx - lx) * (opening + .1);
-				fy = ly + (ry - ly) * (opening + .1);
+				
+				type = Random.randomInt(4); // 0 -> square, 1 -> triangle, 2 -> wide, 3 -> tall
+				height = gatewayHeight / 2;
+				closeGH = false;
+				width = .1;
+				switch (type) {
+					case 0:
+						rgb = [255, 0, 0];
+						break;
+					case 1:
+						rgb = [0, 160, 50];
+						closeGH = true;
+						break;
+					case 2:
+						rgb = [0, 0, 255];
+						height *= .7;
+						width = .2;
+						break;
+					case 3:
+						rgb = [255, 255, 0];
+						height *= 1.5;
+						width *= .7;
+						break;
+				}
+				
+				
+				ex = lx + (rx - lx) * (opening - width);
+				ey = ly + (ry - ly) * (opening - width);
+				fx = lx + (rx - lx) * (opening + width);
+				fy = ly + (ry - ly) * (opening + width);
 				
 				e = [ex, ey, 0.0];
 				f = [fx, fy, 0.0];
-				g = [ex, ey, gatewayHeight / 2];
-				h = [fx, fy, gatewayHeight / 2];
-				ip = [a[0], a[1], gatewayHeight / 2];
-				jp = [c[0], c[1], gatewayHeight / 2];
+				g = [ex, ey, height];
+				h = [fx, fy, height];
+				ip = [a[0], a[1], height];
+				jp = [c[0], c[1], height];
 				
-				rgb = [255, 0, 0];
+				if (closeGH) {
+					ghx = (ex + fx) / 2.0;
+					ghy = (ey + fy) / 2.0;
+					g = [ghx, ghy, g[2]];
+					h = g;
+				}
 				
 				/*
 					b---------------d
 					|               |
-					i     g--h      j
+					ip    g--h      jp
 					|     |  |      |
 					a-----e  f------c
 				*/
 				
-				
-				
 				gateways.add([
 					[lx, ly],
 					[rx, ry],
-					makeTrianglesForRectangle(b, d, jp, ip, rgb) +
-					makeTrianglesForRectangle(a, ip, g, e, rgb) +
-					makeTrianglesForRectangle(h, jp, c, f, rgb)
+					makeTrianglesForQuad(b, d, jp, ip, rgb) +
+					makeTrianglesForQuad(a, ip, g, e, rgb) +
+					makeTrianglesForQuad(h, jp, c, f, rgb)
 					]);
 				
 			}

@@ -34,7 +34,10 @@ function pointDistanceFromLine(ax, ay, bx, by, px, py) {
 	return ((ix - px) ** 2 + (iy - py) ** 2) ** .5;
 }
 
-function makeTrianglesForRectangle(a, b, c, d, rgb) {
+// points must be passed in order.
+// clockwise or counter clockwise is fine.
+// "Z" shaped order won't work.
+function makeTrianglesForQuad(a, b, c, d, rgb) {
 	triangles = [[a, b, c], [a, c, d]];
 	
 	output = [];
