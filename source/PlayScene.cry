@@ -78,7 +78,7 @@ class PlayScene : AbstractScene {
 			if (gateway.isNear(px, py)) {
 				if (gateway.isCrossThrough(oldPx, oldPy, px, py)) {
 					this.course.removeGateway(i);
-					if (this.player.currentShape == gateway.type) {
+					if (this.player.currentShape == gateway.type && gateway.goesThroughOpening(px, py)) {
 						this.timeLeft += this.timeBonus;
 						this.timeBonusHudCounter = TIME_BONUS_HUD_COUNTER_MAX;
 						this.timeBonusHudDisplay = ('+' + (Math.floor(this.timeBonus * 100) / 100.0))[:5]; // :5 just in case some weird floating point issue on a platform.

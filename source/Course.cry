@@ -250,7 +250,7 @@ class Course {
 						type = Shapes.SHORT;
 						rgb = [0, 0, 255];
 						height *= .7;
-						width = .2;
+						width = .15;
 						break;
 					case 3:
 						type = Shapes.TALL;
@@ -294,7 +294,8 @@ class Course {
 					makeTrianglesForQuad(b, d, [jp[0], jp[1], jp[2] - .01], [ip[0], ip[1], ip[2] - .01], rgb) +
 						makeTrianglesForQuad(a, ip, g, e, rgb) +
 						makeTrianglesForQuad(h, jp, c, f, rgb),
-					type));
+					type,
+					width));
 			}
 			this.gatewayObjects = gateways;
 		}

@@ -17,10 +17,12 @@ class Gateway {
 	
 	field triangles;
 	field opening;
+	field openingWidthRadius;
 	field type;
 	
-	constructor(left, right, opening, triangles, type) {
+	constructor(left, right, opening, triangles, type, openingWidthRadius) {
 		this.type = type;
+		this.openingWidthRadius = openingWidthRadius;
 		
 		this.left = left;
 		this.leftX = left[0];
@@ -45,5 +47,13 @@ class Gateway {
 		oldSign = crossProductSign(this.leftX, this.leftY, this.rightX, this.rightY, this.leftX, this.leftY, pxOld, pyOld);
 		newSign = crossProductSign(this.leftX, this.leftY, this.rightX, this.rightY, this.leftX, this.leftY, pxNew, pyNew);
 		return oldSign != newSign;
+	}
+	
+	function goesThroughOpening(px, py) {
+		ox = this.leftX + this.opening * (this.rightX - this.leftX);
+		oy = this.leftY + this.opening * (this.rightY - this.leftY);
+		
+		dist = (((ox - px) ** 2 + (oy - py) ** 2) ** .5) / GATEWAY_WIDTH;
+		return dist < this.openingWidthRadius;
 	}
 }
