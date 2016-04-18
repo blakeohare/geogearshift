@@ -12,6 +12,8 @@ class PlayScene : AbstractScene {
 	field course;
 	field timeLeft = 90.0;
 	field previousFrameTime = Core.currentTime();
+	field gateCount = 0;
+	field timeBonus = 5.0;
 	
 	constructor(demoMode) : base() {
 		this.demoMode = demoMode;
@@ -73,8 +75,10 @@ class PlayScene : AbstractScene {
 				if (gateway.isCrossThrough(oldPx, oldPy, px, py)) {
 					this.course.removeGateway(i);
 					if (this.player.currentShape == gateway.type) {
-						this.timeLeft += 5.0;
+						this.timeLeft += this.timeBonus;
 						JukeBox.playSound('correct');
+						this.gateCount++;
+						this.timeBonus *= .97;
 					} else {
 						JukeBox.playSound('wrong');
 						this.player.crashTimer = FPS / 2;

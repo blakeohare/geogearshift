@@ -150,7 +150,7 @@ class Course {
 	}
 	
 	function getGatewayObjects() {
-		if (this.gatewayObjects == null) {
+		if (this.gatewayObjects == null || this.gatewayObjects.length == 0) {
 			path = this.getThePath();
 			//num = Math.floor(this.totalDistance / 10.0);
 			spacing = INITIAL_GATEWAY_SPACING;
