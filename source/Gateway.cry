@@ -17,8 +17,11 @@ class Gateway {
 	
 	field triangles;
 	field opening;
+	field type;
 	
-	constructor(left, right, opening, triangles) {
+	constructor(left, right, opening, triangles, type) {
+		this.type = type;
+		
 		this.left = left;
 		this.leftX = left[0];
 		this.leftY = left[1];

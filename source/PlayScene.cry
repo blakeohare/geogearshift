@@ -72,7 +72,13 @@ class PlayScene : AbstractScene {
 			if (gateway.isNear(px, py)) {
 				if (gateway.isCrossThrough(oldPx, oldPy, px, py)) {
 					this.course.removeGateway(i);
-					this.timeLeft += 5.0;
+					if (this.player.currentShape == gateway.type) {
+						this.timeLeft += 5.0;
+						JukeBox.playSound('correct');
+					} else {
+						JukeBox.playSound('wrong');
+						this.player.crashTimer = FPS / 2;
+					}
 					break;
 				}
 			}

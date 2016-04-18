@@ -28,6 +28,8 @@ class Player {
 	field changeLift = 0.0;
 	field changeHeight = 1.0;
 	
+	field crashTimer = -1;
+	
 	field theta; // 0 is facing the positive y axis and goes clockiwse
 	
 	constructor(x, y, theta) {
@@ -127,6 +129,15 @@ class Player {
 		renderRow[3] -> nullable image
 	*/
 	function renderUpdate(renderRow) {
+	
+		this.crashTimer--;
+		pOffsetX = 0;
+		pOffsetY = 0;
+		if (this.crashTimer > 0) {
+			pOffsetX = Random.randomFloat() * .08;
+			pOffsetY = Random.randomFloat() * .08;
+		}
+		
 		imgPath = null;
 		switch (this.currentShape) {
 			case Shapes.SQUARE: imgPath = 'sprites/square.png'; break;
@@ -138,8 +149,8 @@ class Player {
 		renderRow[3] = img;
 		
 		loc = renderRow[1];
-		loc[0] = this.x;
-		loc[1] = this.y;
+		loc[0] = this.x + pOffsetX;
+		loc[1] = this.y + pOffsetY;
 		loc[2] = this.changeLift;
 		
 		renderRow[2] = .3; // seems about right.

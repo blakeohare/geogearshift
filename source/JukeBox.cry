@@ -28,4 +28,14 @@ class JukeBox {
 			JukeBox._getSong(id).fadeOutAndPlay(true, 3);
 		}
 	}
+	
+	static field sounds = {};
+	static function playSound(id) {
+		snd = JukeBox.sounds.get(id);
+		if (snd == null) {
+			snd = Audio.SoundResource.loadFromResource('sound/' + id + '.ogg');
+			JukeBox.sounds[id] = snd;
+		}
+		snd.play();
+	}
 }

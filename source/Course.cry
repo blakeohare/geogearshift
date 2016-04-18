@@ -159,7 +159,7 @@ class Course {
 			// - path point index that occurs before this gateway
 			// - path point index that occurs after this gateway
 			// - percentage between these two points
-			placements = []; 
+			placements = [];
 			
 			tillNext = spacing * 2; // skip the first one.
 			for (i = 1; i <= path.length; ++i) {
@@ -238,18 +238,22 @@ class Course {
 				width = .1;
 				switch (type) {
 					case 0:
+						type = Shapes.SQUARE;
 						rgb = [255, 0, 0];
 						break;
 					case 1:
+						type = Shapes.TRIANGLE;
 						rgb = [0, 160, 50];
 						closeGH = true;
 						break;
 					case 2:
+						type = Shapes.SHORT;
 						rgb = [0, 0, 255];
 						height *= .7;
 						width = .2;
 						break;
 					case 3:
+						type = Shapes.TALL;
 						rgb = [255, 255, 0];
 						height *= 1.5;
 						width *= .7;
@@ -283,10 +287,14 @@ class Course {
 					h = g;
 				}
 				
-				gateways.add(new Gateway([lx, ly], [rx, ry], opening, 
+				gateways.add(new Gateway(
+					[lx, ly],
+					[rx, ry],
+					opening, 
 					makeTrianglesForQuad(b, d, [jp[0], jp[1], jp[2] - .01], [ip[0], ip[1], ip[2] - .01], rgb) +
-					makeTrianglesForQuad(a, ip, g, e, rgb) +
-					makeTrianglesForQuad(h, jp, c, f, rgb)));
+						makeTrianglesForQuad(a, ip, g, e, rgb) +
+						makeTrianglesForQuad(h, jp, c, f, rgb),
+					type));
 			}
 			this.gatewayObjects = gateways;
 		}
