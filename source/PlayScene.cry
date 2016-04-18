@@ -12,12 +12,14 @@ class PlayScene : AbstractScene {
 	field renderer;
 	field player;
 	field course;
-	field timeLeft = 45.0;
+	field timeLeft = 30.0;
 	field previousFrameTime = Core.currentTime();
 	field gateCount = 0;
 	field timeBonus = 5.0;
 	field timeBonusHudCounter = -1;
 	field timeBonusHudDisplay = null;
+	
+	field timeSurvived = 0.0;
 	
 	constructor(demoMode) : base() {
 		this.demoMode = demoMode;
@@ -34,9 +36,15 @@ class PlayScene : AbstractScene {
 		// update timer.
 		now = Core.currentTime();
 		if (this.previousFrameTime != null) {
-			this.timeLeft -= now - this.previousFrameTime;
+			diff = now - this.previousFrameTime;
+			this.timeLeft -= diff;
+			this.timeSurvived += diff;
 		}
 		this.previousFrameTime = now;
+		
+		if (!this.demoMode && this.timeLeft <= 0) {
+			this.switchScene(new EndScreen(this));
+		}
 		
 		pause = false;
 		shapeChange = null;
@@ -102,15 +110,8 @@ class PlayScene : AbstractScene {
 		if (!this.demoMode) {
 			// HUD
 			
-			centis = Math.floor(this.timeLeft * 100);
-			if (centis < 0) centis = 0;
-			
-			mins = centis / 6000;
-			centis -= mins * 6000;
-			seconds = centis / 100;
-			centis -= seconds * 100;
-			
-			display = mins + ":" + (seconds < 10 ? '0' : '') + seconds + '.' + (centis < 10 ? '0' : '') + centis;
+			timeLeft = Math.max(0, this.timeLeft);
+			display = formatTime(timeLeft);
 			
 			timeleft = ImageLibrary.get('menus/timeleft.png');
 			timeleft.draw(10, 10);

@@ -1,0 +1,40 @@
+class EndScreen : AbstractScene {
+	
+	field bg;
+	field survivedFor;
+	field isRecord = false;
+	field counter = 0;
+	
+	constructor(bg) : base() {
+		this.bg = bg;
+		this.survivedFor = formatTime(bg.timeSurvived);
+	}
+	
+	function update(pressedKeys, pressedThisFrame) {
+		
+		this.counter++;
+		
+		if (this.counter > FPS && pressedThisFrame.length > 0) {
+			this.switchScene(new FadeTransitionScene(this, new TitleScene()));
+			JukeBox.transition('title');
+		}
+	}
+	
+	function render(rc) {
+		
+		blackness = Math.min(1, this.counter / (FPS * 2.0));
+		
+		if (blackness < 1) {
+			this.bg.render(rc);
+		}
+		
+		GFX.Draw.rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, 0, Math.floor(255 * blackness));
+		
+		stop = ImageLibrary.get('menus/end_text.png');
+		stop.draw((SCREEN_WIDTH - stop.width) / 2, 100);
+		
+		surv = ImageLibrary.get('menus/survived_for.png');
+		surv.draw(100, 300);
+		TextRenderer.draw(this.survivedFor, 100 + surv.width + 20, 300);
+	}
+}

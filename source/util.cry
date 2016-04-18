@@ -77,3 +77,15 @@ function makeTrianglesForQuad(a, b, c, d, rgb) {
 	}
 	return output;
 }
+
+function formatTime(secondsFloat) {
+	if (secondsFloat < 0) secondsFloat = 0;
+	centis = Math.floor(secondsFloat * 100);
+	
+	mins = centis / 6000;
+	centis -= mins * 6000;
+	seconds = centis / 100;
+	centis -= seconds * 100;
+	
+	return mins + ":" + (seconds < 10 ? '0' : '') + seconds + '.' + (centis < 10 ? '0' : '') + centis;
+}
