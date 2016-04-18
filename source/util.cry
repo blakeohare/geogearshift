@@ -1,1 +1,35 @@
-// nothing here yet.
+import Math;
+
+// find distance of P from the line AB
+function pointDistanceFromLine(ax, ay, bx, by, px, py) {
+	dx = bx - ax;
+	if (dx == 0) {
+		// vertical line at x = ax
+		return Math.abs(ax - px);
+	}
+	
+	dy = by - ay;
+	if (dy == 0) {
+		// horizontal line at y = ay
+		return Math.abs(ay - py);
+	}
+	
+	// y = m1 * x + b1
+	m1 = 1.0 * dy / dx;
+	b1 = ay - m1 * ax;
+	
+	// y = m2 * x + b2
+	m2 = -1 / m1;
+	b2 = py - m2 * px;
+	
+	// solve for x
+	// y = m1 * x + b1 = m2 * x + b2
+	// (m1 - m2) * x = b2 - b1
+	// x = (b2 - b1) / (m1 - m2)
+	ix = (b2 - b1) / (m1 - m2);
+	// plug in to y = m2 * x + b2
+	iy = m2 * ix + b2;
+	
+	// find distance between Ixy and Pxy
+	return ((ix - px) ** 2 + (iy - py) ** 2) ** .5;
+}

@@ -28,6 +28,7 @@ class Course {
 	field totalDistance;
 	field cumulativeDistance;
 	field distanceToPrevious;
+	field pathOriginalPoints;
 	
 	constructor(id) {
 		this.id = id;
@@ -76,8 +77,14 @@ class Course {
 		// That's probably okay for our purposes and for the purposes of a game jam.
 		
 		j = (i + 1) % path.length;
-		aProg = ((path[i][0] - x) ** 2 + (path[i][1] - y) ** 2) ** .5;
-		bProg = ((path[j][0] - x) ** 2 + (path[j][1] - y) ** 2) ** .5;
+		a12 = this.pathOriginalPoints[i];
+		b12 = this.pathOriginalPoints[j];
+		a1 = a12[0];
+		a2 = a12[1];
+		b1 = b12[0];
+		b2 = b12[1];
+		aProg = pointDistanceFromLine(a1[0], a1[1], a2[0], a2[1], x, y);
+		bProg = pointDistanceFromLine(b1[0], b1[1], b2[0], b2[1], x, y);
 		localProgress = aProg / (aProg + bProg);
 		
 		return (this.cumulativeDistance[i] + this.distanceToPrevious[j] * localProgress) / this.totalDistance;
@@ -87,18 +94,21 @@ class Course {
 		if (this.thePath == null) {
 			
 			path = [];
+			pathOriginalPoints = [];
 			for (i = 3; i < this.points.length; i += 2) {
 				a = this.points[i];
 				b = this.points[i - 1];
 				mx = (a[0] + b[0]) / 2.0;
 				my = (a[1] + b[1]) / 2.0;
 				path.add([mx, my]);
+				pathOriginalPoints.add([a, b]);
 			}
 			dx = path[0][0] - path[-1][0];
 			dy = path[0][1] - path[-1][1];
 			if (dx ** 2 + dy ** 2 < 3 ** 2) {
 				// If there's overlap with the first and last, pop the last point.
 				path = path[:-1];
+				pathOriginalPoints = pathOriginalPoints[:-1];
 			}
 			this.thePath = path;
 			
@@ -123,6 +133,7 @@ class Course {
 			
 			this.cumulativeDistance = cumulativeDistance;
 			this.distanceToPrevious = distanceToPrevious;
+			this.pathOriginalPoints = pathOriginalPoints;
 			this.totalDistance = total;
 		}
 		return this.thePath;
