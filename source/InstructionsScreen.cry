@@ -1,0 +1,29 @@
+class InstructionsScreen : AbstractScene {
+	
+	field bg;
+	
+	constructor(bg) : base() {
+		this.bg = bg;
+	}
+	
+	function update(pressedKeys, pressedThisFrame) {
+		if (pressedThisFrame.length > 0) {
+			this.switchScene(new TitleScene(this.bg));
+		}
+		
+		this.bg.update({}, []);
+	}
+	
+	function render(rc) {
+		this.bg.render(rc);
+		
+		GFX.Draw.rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, 0, 128);
+		
+		img = ImageLibrary.get('menus/instructions_text.png');
+		
+		x = (SCREEN_WIDTH - img.width) / 2;
+		y = (SCREEN_HEIGHT - img.height) / 2;
+		
+		img.draw(x, y);
+	}
+}

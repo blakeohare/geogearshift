@@ -7,8 +7,8 @@ class TitleScene : AbstractScene {
 	
 	static field titleMusic = null;
 	
-	constructor() : base() {
-		this.emptyPlayscene = new PlayScene(true);
+	constructor(bg = null) : base() {
+		this.emptyPlayscene = bg ?? new PlayScene(true);
 	}
 	
 	function update(pressedKeys, pressedThisFrame) {
@@ -30,7 +30,7 @@ class TitleScene : AbstractScene {
 			}
 		}
 		
-		this.index = Math.ensureRange(this.index, 0, 1);
+		this.index = Math.ensureRange(this.index, 0, 2);
 		if (this.index != oldIndex) {
 			// TODO: play menu noise
 			this.counter = 0;
@@ -41,6 +41,8 @@ class TitleScene : AbstractScene {
 				this.flashCursorMode = true;
 				this.switchScene(new FadeTransitionScene(this, new PlayScene(false)));
 				JukeBox.transition('level1');
+			} else if (this.index == 1) {
+				this.switchScene(new InstructionsScreen(this.emptyPlayscene));
 			} else {
 				print("Options menu");
 			}
@@ -63,11 +65,12 @@ class TitleScene : AbstractScene {
 		
 		images = [
 			ImageLibrary.get('menus/course_select.png'),
+			ImageLibrary.get('menus/instructions.png'),
 			ImageLibrary.get('menus/options.png'),
 		];
 		cursor = ImageLibrary.get('menus/cursor.png');
 		
-		y = 350;
+		y = 320;
 		x = 300;
 		
 		for (i = 0; i < images.length; ++i) {
