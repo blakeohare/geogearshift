@@ -1,5 +1,6 @@
 import JSON;
 import Math;
+import Random;
 import Resources;
 
 /*
@@ -223,24 +224,38 @@ class Course {
 				c = [rx, ry, 0.0];
 				d = [rx, ry, gatewayHeight];
 				
+				opening = Random.randomFloat() * .3 + .35;
+				ex = lx + (rx - lx) * (opening - .1);
+				ey = ly + (ry - ly) * (opening - .1);
+				fx = lx + (rx - lx) * (opening + .1);
+				fy = ly + (ry - ly) * (opening + .1);
+				
+				e = [ex, ey, 0.0];
+				f = [fx, fy, 0.0];
+				g = [ex, ey, gatewayHeight / 2];
+				h = [fx, fy, gatewayHeight / 2];
+				ip = [a[0], a[1], gatewayHeight / 2];
+				jp = [c[0], c[1], gatewayHeight / 2];
+				
+				rgb = [255, 0, 0];
+				
+				/*
+					b---------------d
+					|               |
+					i     g--h      j
+					|     |  |      |
+					a-----e  f------c
+				*/
+				
+				
+				
 				gateways.add([
 					[lx, ly],
 					[rx, ry],
-					[
-						// list of triangles
-						[
-							ObjectType.TRIANGLE,
-							[px, py, gatewayHeight / 2, 1],
-							[a, b, c],
-							[255, 0, 0]
-						], [
-							ObjectType.TRIANGLE,
-							[px, py, gatewayHeight / 2, 1],
-							[d, b, c],
-							[255, 0, 0]
-						]
-					]
-				]);
+					makeTrianglesForRectangle(b, d, jp, ip, rgb) +
+					makeTrianglesForRectangle(a, ip, g, e, rgb) +
+					makeTrianglesForRectangle(h, jp, c, f, rgb)
+					]);
 				
 			}
 			this.gatewayObjects = gateways;

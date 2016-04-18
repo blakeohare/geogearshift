@@ -33,3 +33,36 @@ function pointDistanceFromLine(ax, ay, bx, by, px, py) {
 	// find distance between Ixy and Pxy
 	return ((ix - px) ** 2 + (iy - py) ** 2) ** .5;
 }
+
+function makeTrianglesForRectangle(a, b, c, d, rgb) {
+	triangles = [[a, b, c], [a, c, d]];
+	
+	output = [];
+	for (triangle : triangles) {
+		a = triangle[0];
+		b = triangle[1];
+		c = triangle[2];
+		
+		ax = a[0];
+		ay = a[1];
+		az = a[2];
+		bx = b[0];
+		by = b[1];
+		bz = b[2];
+		cx = c[0];
+		cy = c[1];
+		cz = c[2];
+		
+		avgX = (ax + bx + cx) / 3.0;
+		avgY = (ay + by + cy) / 3.0;
+		avgZ = (az + bz + cz) / 3.0;
+		
+		output.add([
+			ObjectType.TRIANGLE,
+			[avgX, avgY, avgZ, 1],
+			[a, b, c],
+			rgb.clone()
+		]);
+	}
+	return output;
+}
