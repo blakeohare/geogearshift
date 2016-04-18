@@ -333,26 +333,53 @@ class Renderer {
 					A = ABC[0];
 					B = ABC[1];
 					C = ABC[2];
-					sierpinAx = (B[0] + C[0]) / 2.0;
-					sierpinAy = (B[1] + C[1]) / 2.0;
-					sierpinAz = (B[2] + C[2]) / 2.0;
+					
+					ax = A[0];
+					ay = A[1];
+					az = A[2];
+					
+					bx = B[0];
+					by = B[1];
+					bz = B[2];
+					
+					cx = C[0];
+					cy = C[1];
+					cz = C[2];
+					
+					sierpinAx = (bx + cx) / 2.0;
+					sierpinAy = (by + cy) / 2.0;
+					sierpinAz = (bz + cz) / 2.0;
 					sierpinA = [sierpinAx, sierpinAy, sierpinAz];
 					
-					sierpinBx = (A[0] + C[0]) / 2.0;
-					sierpinBy = (A[1] + C[1]) / 2.0;
-					sierpinBz = (A[2] + C[2]) / 2.0;
+					sierpinBx = (ax + cx) / 2.0;
+					sierpinBy = (ay + cy) / 2.0;
+					sierpinBz = (az + cz) / 2.0;
 					sierpinB = [sierpinBx, sierpinBy, sierpinBz];
 					
-					sierpinCx = (B[0] + A[0]) / 2.0;
-					sierpinCy = (B[1] + A[1]) / 2.0;
-					sierpinCz = (B[2] + A[2]) / 2.0;
+					sierpinCx = (bx + ax) / 2.0;
+					sierpinCy = (by + ay) / 2.0;
+					sierpinCz = (bz + az) / 2.0;
 					sierpinC = [sierpinCx, sierpinCy, sierpinCz];
 					
+					// find the shortest side...
+					aLength = (bx - cx) ** 2 + (by - cy) ** 2 + (bz - cz) ** 2;
+					bLength = (ax - cx) ** 2 + (ay - cy) ** 2 + (az - cz) ** 2;
+					cLength = (ax - bx) ** 2 + (ay - by) ** 2 + (az - bz) ** 2;
+					
 					rd = recursionDepth + 1;
-					this.renderTriangle([A, sierpinB, sierpinC], rgb, rd);
-					this.renderTriangle([sierpinA, sierpinB, sierpinC], rgb, rd);
-					this.renderTriangle([B, sierpinA, sierpinC], rgb, rd);
-					this.renderTriangle([C, sierpinB, sierpinA], rgb, rd);
+					if (aLength < bLength && aLength < cLength) {
+						this.renderTriangle([A, sierpinB, sierpinC], rgb, rd);
+						this.renderTriangle([B, C, sierpinC], rgb, rd);
+						this.renderTriangle([sierpinC, sierpinB, C], rgb, rd);
+					} else if (bLength < cLength && bLength < aLength) {
+						this.renderTriangle([B, sierpinA, sierpinC], rgb, rd);
+						this.renderTriangle([A, C, sierpinC], rgb, rd);
+						this.renderTriangle([sierpinC, sierpinA, C], rgb, rd);
+					} else {
+						this.renderTriangle([C, sierpinA, sierpinB], rgb, rd);
+						this.renderTriangle([A, B, sierpinB], rgb, rd);
+						this.renderTriangle([sierpinB, sierpinA, B], rgb, rd);
+					}
 				}
 				break;
 			
