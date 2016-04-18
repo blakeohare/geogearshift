@@ -1,0 +1,29 @@
+class TextRenderer {
+	static field lookup = null;
+	
+	static function draw(text, x, y) {
+		lookup = TextRenderer.lookup;
+		if (lookup == null) {
+			lookup = {};
+			prefix = 'menus/text/num_';
+			for (i = 0; i < 10; ++i) {
+				lookup['' + i] = ImageLibrary.get(prefix + i + '.png');
+				lookup['.'] = ImageLibrary.get(prefix + 'per.png');
+				lookup[':'] = ImageLibrary.get(prefix + 'colon.png');
+				lookup['"'] = ImageLibrary.get(prefix + 'sec.png');
+				lookup["'"] = ImageLibrary.get(prefix + 'min.png');
+			}
+			TextRenderer.lookup = lookup;
+		}
+		
+		for (char : text) {
+			img = lookup.get(char, null);
+			if (img == null) {
+				x += lookup['1'].width;
+			} else {
+				img.draw(x, y);
+				x += img.width;
+			}
+		}
+	}
+}

@@ -6,17 +6,29 @@ class PlayScene : AbstractScene {
 		[[1.0, 5], [3.0, 5]], // shifts to the right
 	];
 	
+	field demoMode;
 	field renderer;
 	field player;
 	field course;
+	field timeLeft = 90.0;
+	field previousFrameTime = Core.currentTime();
 	
 	constructor(demoMode) : base() {
+		this.demoMode = demoMode;
 		this.player = new Player(0.0, 0.5, 0.0);
 		this.course = new Course('level1');
 		this.renderer = new Renderer(this, demoMode);
 	}
 	
 	function update(pressedKeys, pressedThisFrame) {
+	
+		// update timer.
+		now = Core.currentTime();
+		if (this.previousFrameTime != null) {
+			this.timeLeft -= now - this.previousFrameTime;
+		}
+		this.previousFrameTime = now;
+		
 		pause = false;
 		shapeChange = null;
 		for (action : pressedThisFrame) {
@@ -36,8 +48,6 @@ class PlayScene : AbstractScene {
 			this.switchScene(new PauseScreen(this));
 		}
 		
-		
-		
 		this.player.update(
 			pressedKeys.get(Action.UP, false),
 			pressedKeys.get(Action.DOWN, false),
@@ -49,10 +59,26 @@ class PlayScene : AbstractScene {
 		
 		progress = this.course.getProgress(this.player.x, this.player.y);
 		progress = Math.floor(progress * 100);
-		//print(progress + '%');
+		
 	}
 	
 	function render(rc) {
 		this.renderer.render(rc);
+		
+		if (!this.demoMode) {
+			// HUD
+			
+			centis = Math.floor(this.timeLeft * 100);
+			if (centis < 0) centis = 0;
+			
+			mins = centis / 6000;
+			centis -= mins * 6000;
+			seconds = centis / 100;
+			centis -= seconds * 100;
+			
+			display = mins + ":" + (seconds < 10 ? '0' : '') + seconds + '.' + (centis < 10 ? '0' : '') + centis;
+			
+			TextRenderer.draw(display, 10, 10);
+		}
 	}
 }
