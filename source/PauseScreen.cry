@@ -1,0 +1,62 @@
+class PauseScreen : AbstractScene {
+	
+	field bg;
+	field counter = 0;
+	field choices;
+	field index = 0;
+	field cursor;
+	
+	constructor(bg) : base() {
+		this.bg = bg;
+		this.choices = [
+			ImageLibrary.get('menus/resume.png'),
+			ImageLibrary.get('menus/quit.png'),
+		];
+		this.cursor = ImageLibrary.get('menus/cursor.png');
+	}
+	
+	function update(pressedKeys, pressedThisFrame) {
+		commit = false;
+		
+		for (action : pressedThisFrame) {
+			switch (action) {
+				case Action.ENTER:
+					commit = true;
+					break;
+				case Action.UP:
+					this.index = 0;
+					break;
+				case Action.DOWN:
+					this.index = 1;
+					break;
+			}
+		}
+		
+		if (commit) {
+			if (this.index == 0) {
+				this.switchScene(this.bg);
+			} else {
+				JukeBox.transition('title');
+				this.switchScene(new FadeTransitionScene(this, new TitleScene()));
+			}
+		}
+	}
+	
+	function render(rc) {
+		this.bg.render(rc);
+		GFX.Draw.rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, 0, 170);
+		
+		y = 200;
+		x = 300;
+		
+		for (i = 0; i < this.choices.length; ++i) {
+			if (this.index == i) {
+				this.cursor.draw(x - 10 - this.cursor.width, y);
+			}
+			
+			this.choices[i].draw(x, y);
+			
+			y += 50;
+		}
+	}
+}

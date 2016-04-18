@@ -17,13 +17,24 @@ class PlayScene : AbstractScene {
 	}
 	
 	function update(pressedKeys, pressedThisFrame) {
-		if (this.player != null) {
-			this.player.update(
-				pressedKeys.get(Action.UP, false),
-				pressedKeys.get(Action.DOWN, false),
-				pressedKeys.get(Action.LEFT, false),
-				pressedKeys.get(Action.RIGHT, false),
-				this.course);
+		this.player.update(
+			pressedKeys.get(Action.UP, false),
+			pressedKeys.get(Action.DOWN, false),
+			pressedKeys.get(Action.LEFT, false),
+			pressedKeys.get(Action.RIGHT, false),
+			this.course);
+	
+		pause = false;
+		for (action : pressedThisFrame) {
+			switch (action) {
+				case Action.ENTER:
+					pause = true;
+					break;
+			}
+			
+		}
+		if (pause) {
+			this.switchScene(new PauseScreen(this));
 		}
 	}
 	
