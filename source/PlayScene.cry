@@ -17,25 +17,35 @@ class PlayScene : AbstractScene {
 	}
 	
 	function update(pressedKeys, pressedThisFrame) {
-		this.player.update(
-			pressedKeys.get(Action.UP, false),
-			pressedKeys.get(Action.DOWN, false),
-			pressedKeys.get(Action.LEFT, false),
-			pressedKeys.get(Action.RIGHT, false),
-			this.course);
-	
 		pause = false;
+		shapeChange = null;
 		for (action : pressedThisFrame) {
 			switch (action) {
 				case Action.ENTER:
 					pause = true;
 					break;
+					
+				case Action.RECT: shapeChange = Shapes.SQUARE; break;
+				case Action.TRI: shapeChange = Shapes.TRIANGLE; break;
+				case Action.TALL: shapeChange = Shapes.TALL; break;
+				case Action.SHORT: shapeChange = Shapes.SHORT; break;
 			}
 			
 		}
 		if (pause) {
 			this.switchScene(new PauseScreen(this));
 		}
+		
+		
+		
+		this.player.update(
+			pressedKeys.get(Action.UP, false),
+			pressedKeys.get(Action.DOWN, false),
+			pressedKeys.get(Action.LEFT, false),
+			pressedKeys.get(Action.RIGHT, false),
+			this.course,
+			shapeChange);
+	
 		
 		progress = this.course.getProgress(this.player.x, this.player.y);
 		progress = Math.floor(progress * 100);

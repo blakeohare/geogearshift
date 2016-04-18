@@ -5,12 +5,28 @@ import Math;
 const ROTATION_VELOCITY = TWO_PI * .003; // 1%
 const ACCEL_RATE = 0.05;
 
+enum Shapes {
+	SQUARE,
+	TRIANGLE,
+	SHORT,
+	TALL,
+}
+
+const CHANGE_COUNTER_START = FPS / 4;
+
 class Player {
 	
 	field x;
 	field y;
 	field vx = 0.0;
 	field vy = 0.0;
+	
+	field nextShape = Shapes.SQUARE;
+	field currentShape = Shapes.SQUARE;
+	field changeCounter = -1; // counts down. positive means it's changing.
+	field changeProgress = 0.0;
+	field changeLift = 0.0;
+	field changeHeight = 1.0;
 	
 	field theta; // 0 is facing the positive y axis and goes clockiwse
 	
@@ -20,7 +36,37 @@ class Player {
 		this.theta = theta + 0.0;
 	}
 	
-	function update(accelPressed, brakePressed, goLeft, goRight, course) {
+	function update(accelPressed, brakePressed, goLeft, goRight, course, shapeChange) {
+		
+		// trigger a shape change
+		this.changeCounter--;
+		if (shapeChange != null && this.changeCounter < 0 && this.currentShape != shapeChange) {
+			this.nextShape = shapeChange;
+			this.changeCounter = CHANGE_COUNTER_START;
+		}
+		
+		// shape change in progress
+		if (this.changeCounter > 0) {
+		
+			// halfway through, swap shape mode
+			if (this.nextShape != null &&
+				this.currentShape != this.nextShape &&
+				this.changeCounter < CHANGE_COUNTER_START / 2) {
+				
+				this.currentShape = this.nextShape;
+				this.nextShape = null;
+			}
+			// goes from 0 to 1 to 0.
+			changeProgress = 1.0 - Math.abs(2.0 * this.changeCounter / CHANGE_COUNTER_START - 1);
+			changeProgress = Math.ensureRange(changeProgress, 0, 1);
+			this.changeLift = changeProgress * .2;
+			this.changeHeight = changeProgress * .3 + 1;
+			//print([changeProgress, changeLift, changeHeight]);
+		} else {
+			this.changeLift = 0.0;
+			this.changeHeight = 1.0;
+		}
+		
 		if (goLeft) {
 			this.theta -= ROTATION_VELOCITY;
 		} else if (goRight) {
@@ -51,7 +97,6 @@ class Player {
 		dx = Math.sin(this.theta) * dmag;
 		dy = Math.cos(this.theta) * dmag;
 		
-		
 		this.vx += dx;
 		this.vy += dy;
 		
@@ -73,14 +118,23 @@ class Player {
 		renderRow[3] -> nullable image
 	*/
 	function renderUpdate(renderRow) {
-		img = ImageLibrary.get('sprites/square.png');
+		imgPath = null;
+		switch (this.currentShape) {
+			case Shapes.SQUARE: imgPath = 'sprites/square.png'; break;
+			case Shapes.TRIANGLE: imgPath = 'sprites/triangle.png'; break;
+			case Shapes.SHORT: imgPath = 'sprites/short.png'; break;
+			case Shapes.TALL: imgPath = 'sprites/tall.png'; break;
+		}
+		img = ImageLibrary.get(imgPath);
+		renderRow[3] = img;
+		
 		loc = renderRow[1];
 		loc[0] = this.x;
 		loc[1] = this.y;
-		loc[2] = 0.0;
+		loc[2] = this.changeLift;
 		
 		renderRow[2] = .3; // seems about right.
+		renderRow[2] *= this.changeHeight; // adjust for shape transition.
 		
-		renderRow[3] = img;
 	}
 }

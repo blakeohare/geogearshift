@@ -66,6 +66,10 @@ function main() {
 						case KeyboardKey.ENTER:
 							action = Action.ENTER;
 							break;
+						case KeyboardKey.NUM_1: action = Action.RECT; break;
+						case KeyboardKey.NUM_2: action = Action.TRI; break;
+						case KeyboardKey.NUM_3: action = Action.SHORT; break;
+						case KeyboardKey.NUM_4: action = Action.TALL; break;
 						
 					}
 					
