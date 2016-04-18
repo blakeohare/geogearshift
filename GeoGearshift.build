@@ -18,6 +18,11 @@
     <jsfileprefix>/demos/geogearshift/</jsfileprefix>
   </target>
   
+  <target name="js_ludumdare">
+	<platform>js</platform>
+	<jsfileprefix>/ludumdare/geogearshift/</jsfileprefix>
+  </target>
+  
   <target name="js_twocans">
 	<platform>js</platform>
 	<jsfileprefix>/projects/geogearshift/</jsfileprefix>
