@@ -12,6 +12,7 @@ class TextRenderer {
 				lookup[':'] = ImageLibrary.get(prefix + 'colon.png');
 				lookup['"'] = ImageLibrary.get(prefix + 'sec.png');
 				lookup["'"] = ImageLibrary.get(prefix + 'min.png');
+				lookup['+'] = ImageLibrary.get(prefix + 'plus.png');
 			}
 			TextRenderer.lookup = lookup;
 		}

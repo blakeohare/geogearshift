@@ -78,7 +78,9 @@ class PlayScene : AbstractScene {
 			
 			display = mins + ":" + (seconds < 10 ? '0' : '') + seconds + '.' + (centis < 10 ? '0' : '') + centis;
 			
-			TextRenderer.draw(display, 10, 10);
+			timeleft = ImageLibrary.get('menus/timeleft.png');
+			timeleft.draw(10, 10);
+			TextRenderer.draw(display, 10, 17 + timeleft.height);
 		}
 	}
 }
