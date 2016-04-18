@@ -24,9 +24,11 @@ class PauseScreen : AbstractScene {
 					commit = true;
 					break;
 				case Action.UP:
+					JukeBox.playSound('menupop');
 					this.index = 0;
 					break;
 				case Action.DOWN:
+					JukeBox.playSound('menupop');
 					this.index = 1;
 					break;
 			}

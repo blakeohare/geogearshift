@@ -32,7 +32,7 @@ class TitleScene : AbstractScene {
 		
 		this.index = Math.ensureRange(this.index, 0, 2);
 		if (this.index != oldIndex) {
-			// TODO: play menu noise
+			JukeBox.playSound('menupop');
 			this.counter = 0;
 		}
 		
