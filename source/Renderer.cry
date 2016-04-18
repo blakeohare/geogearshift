@@ -87,6 +87,8 @@ class Renderer {
 		}
 	}
 	
+	field cachedTrees = null;
+	
 	function updateObjectList() {
 		this.objects.clear();
 		this.objects.concat(this.playscene.course.getRoadTriangles());
@@ -102,6 +104,23 @@ class Renderer {
 			.6, // logical width
 			null,
 			this.playscene.player]);
+			
+		// Add trees
+		if (this.cachedTrees == null) {
+			this.cachedTrees = [];
+			for (tree : this.playscene.course.trees) {
+				x = tree[0];
+				y = tree[1];
+				this.cachedTrees.add([
+					ObjectType.SPRITE,
+					[x, y, .2, 1],
+					.8,
+					null, 
+					new Tree(x, y)
+				]);
+			}
+		}
+		this.objects.concat(this.cachedTrees);
 	}
 	
 	function drawBackground(playerTheta) {

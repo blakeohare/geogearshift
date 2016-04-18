@@ -1,0 +1,16 @@
+class Tree {
+
+	field x;
+	field y;
+	field img;
+	
+	constructor(x, y) {
+		this.x = x;
+		this.y = y;
+		this.img = ImageLibrary.get('billboards/nature_tree1.png');
+	}
+	
+	function renderUpdate(renderRow) {
+		renderRow[3] = this.img;
+	}
+}

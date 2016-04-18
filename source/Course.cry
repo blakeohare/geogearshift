@@ -15,6 +15,7 @@ class Course {
 	field name;
 	field music;
 	field points = [];
+	field trees = [];
 	
 	// Lookup of triangles for collision purposes.
 	// Key is floor(x / 3) * 100000 + floor(y / 3) and value is a list of triangles whose bounding box touches that region.
@@ -43,6 +44,74 @@ class Course {
 		for (i = 0; i + 1 < points.length; i += 2) {
 			this.points.add([ratio * points[i], ratio * points[i + 1]]);
 		}
+		
+		this.trees = this.generateTrees();
+	}
+	
+	function generateTrees() {
+		
+		maxX = this.points[0][0];
+		maxY = this.points[0][1];
+		minX = maxX;
+		minY = maxY;
+		for (point : this.points) {
+			if (point[0] > maxX) maxX = point[0];
+			if (point[1] > maxY) maxY = point[1];
+			if (point[0] < minX) minX = point[0];
+			if (point[1] < minY) minY = point[1];
+		}
+		
+		maxX += 10;
+		maxY += 10;
+		minX -= 10;
+		minY -= 10;
+		
+		trees = [];
+		
+		triangles = this.getRoadTriangles();
+		while (trees.length < 20) {
+			x = Random.randomFloat() * (maxX - minX) + minX;
+			y = Random.randomFloat() * (maxY - minY) + minY;
+			overlap = false;
+			for (triangle : triangles) {
+				abc = triangle[2];
+				a = abc[0];
+				b = abc[1];
+				c = abc[2];
+				ax = a[0];
+				ay = a[1];
+				az = a[2];
+				bx = b[0];
+				by = b[1];
+				bz = b[2];
+				cx = c[0];
+				cy = c[1];
+				cz = c[2];
+				if (x < ax && x < bx && x < cx) { }
+				else if (y < ay && y < by && y < cy) { }
+				else if (x > ax && x > bx && x > cx) { }
+				else if (y > ay && y > by && y > cy) { }
+				else {
+					overlap = true;
+					break;
+				}
+				
+				if (!overlap) {
+					if ((ax - x) ** 2 + (ay - y) ** 2 < 25 ||
+						(bx - x) ** 2 + (by - y) ** 2 < 25 ||
+						(cx - x) ** 2 + (cy - y) ** 2 < 25) {
+							overlap = true;
+							break;
+					}
+				}
+			}
+			
+			if (!overlap) {
+				trees.add([x, y]);
+			}
+		}
+		
+		return trees;
 	}
 	
 	function getProgress(x, y) {
