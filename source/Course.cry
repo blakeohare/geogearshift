@@ -148,9 +148,8 @@ class Course {
 	function getGatewayObjects() {
 		if (this.gatewayObjects == null) {
 			path = this.getThePath();
-			num = Math.floor(this.totalDistance / 10.0);
-			spacing = this.totalDistance / num;
-			gatewayHeight = 1.0;
+			//num = Math.floor(this.totalDistance / 10.0);
+			spacing = 10.0;
 			
 			// each item is a list:
 			// - path point index that occurs before this gateway
@@ -175,7 +174,7 @@ class Course {
 				}
 				
 				while (dist > spacing) {
-					currentDist += dist;
+					currentDist += spacing;
 					dist -= spacing;
 					placements.add([i - 1, i % path.length, currentDist / totalDist]);
 				}
@@ -184,6 +183,7 @@ class Course {
 			
 			gateways = [];
 			
+			gatewayHeight = 1.0;
 			for (i = 0; i < placements.length; ++i) {
 				placement = placements[i];
 				a = path[placement[0]];
