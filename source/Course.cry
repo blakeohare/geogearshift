@@ -278,7 +278,7 @@ class Course {
 				}
 				
 				gateways.add(new Gateway([lx, ly], [rx, ry], opening, 
-					makeTrianglesForQuad(b, d, jp, ip, rgb) +
+					makeTrianglesForQuad(b, d, [jp[0], jp[1], jp[2] - .01], [ip[0], ip[1], ip[2] - .01], rgb) +
 					makeTrianglesForQuad(a, ip, g, e, rgb) +
 					makeTrianglesForQuad(h, jp, c, f, rgb)));
 			}
