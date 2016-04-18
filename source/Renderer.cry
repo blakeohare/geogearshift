@@ -90,6 +90,10 @@ class Renderer {
 	function updateObjectList() {
 		this.objects.clear();
 		this.objects.concat(this.playscene.course.getRoadTriangles());
+		//this.objects.concat(this.playscene.course.getPathPointMarkers());
+		for (gateway : this.playscene.course.getGatewayObjects()) {
+			this.objects.concat(gateway[2]);
+		}
 		
 		// Add player
 		this.objects.add([
@@ -124,11 +128,12 @@ class Renderer {
 		dy = loc[1] - this.cameraY;
 		dz = loc[2] - this.cameraZ;
 		priorityTier = loc[3];
-		return (dx ** 2 + dy ** 2 + dz ** 2) ** .5 + 10000000.0 * priorityTier;
+		return (dx ** 2 + dy ** 2 + dz ** 2) ** .5 - 10000000.0 * priorityTier;
 	}
 	
 	function getSortedObjects() {
 		this.objects.sort(this.getObjectDistance);
+		this.objects.reverse();
 		return this.objects;
 	}
 	

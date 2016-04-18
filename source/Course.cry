@@ -33,7 +33,7 @@ class Course {
 	constructor(id) {
 		this.id = id;
 		json = Resources.readText('levels/' + id + '.json');
-		print(json);
+		//print(json);
 		rawData = JSON.parseJson(json);
 		this.name = rawData.get('name') ?? "Untitled level";
 		this.music = rawData.get('music');
@@ -137,6 +137,137 @@ class Course {
 			this.totalDistance = total;
 		}
 		return this.thePath;
+	}
+	
+	field gatewayObjects = null;
+	function regenerateGatewayObjects() {
+		this.gatewayObjects = null;
+	}
+	
+	function getGatewayObjects() {
+		if (this.gatewayObjects == null) {
+			path = this.getThePath();
+			num = Math.floor(this.totalDistance / 10.0);
+			spacing = this.totalDistance / num;
+			gatewayHeight = 1.0;
+			
+			// each item is a list:
+			// - path point index that occurs before this gateway
+			// - path point index that occurs after this gateway
+			// - percentage between these two points
+			placements = []; 
+			
+			tillNext = spacing;
+			for (i = 1; i <= path.length; ++i) {
+				P = path[i - 1];
+				N = path[i % path.length];
+				PNx = P[0] - N[0];
+				PNy = P[1] - N[1];
+				dist = (PNx ** 2 + PNy ** 2) ** .5;
+				totalDist = dist;
+				currentDist = 0.0;
+				if (dist > tillNext) {
+					currentDist += tillNext;
+					dist -= tillNext;
+					tillNext = spacing;
+					placements.add([i - 1, i % path.length, currentDist / totalDist]);
+				}
+				
+				while (dist > spacing) {
+					currentDist += dist;
+					dist -= spacing;
+					placements.add([i - 1, i % path.length, currentDist / totalDist]);
+				}
+				tillNext = spacing - dist;
+			}
+			
+			gateways = [];
+			
+			for (i = 0; i < placements.length; ++i) {
+				placement = placements[i];
+				a = path[placement[0]];
+				b = path[placement[1]];
+				
+				ax = a[0];
+				ay = a[1];
+				bx = b[0];
+				by = b[1];
+				
+				px = placement[2] * (bx - ax) + ax;
+				py = placement[2] * (by - ay) + ay;
+				
+				if (ax == bx) {
+					lx = ax - 2.0;
+					rx = ax + 2.0;
+					ly = py;
+					ry = py;
+				} else if (ay == by) {
+					lx = px;
+					rx = px;
+					ly = ay - 2.0;
+					ry = ay + 2.0;
+				} else {
+					// y = mx + b
+					
+					ang = Math.arctan(by - ay, bx - ax);
+					ang += HALF_PI;
+					lx = px + Math.cos(ang) * 2.0;
+					ly = py + Math.sin(ang) * 2.0;
+					ang += Math.PI;
+					rx = px + Math.cos(ang) * 2.0;
+					ry = py + Math.sin(ang) * 2.0;
+				}
+				
+				a = [lx, ly, 0.0];
+				b = [lx, ly, gatewayHeight];
+				c = [rx, ry, 0.0];
+				d = [rx, ry, gatewayHeight];
+				
+				gateways.add([
+					[lx, ly],
+					[rx, ry],
+					[
+						// list of triangles
+						[
+							ObjectType.TRIANGLE,
+							[px, py, gatewayHeight / 2, 1],
+							[a, b, c],
+							[255, 0, 0]
+						], [
+							ObjectType.TRIANGLE,
+							[px, py, gatewayHeight / 2, 1],
+							[d, b, c],
+							[255, 0, 0]
+						]
+					]
+				]);
+				
+			}
+			this.gatewayObjects = gateways;
+		}
+		return this.gatewayObjects;
+	}
+	
+	field pathPointMarkers = null;
+	function getPathPointMarkers() {
+		if (this.pathPointMarkers == null) {
+			this.pathPointMarkers = [];
+			for (point : this.getThePath()) {
+				this.pathPointMarkers.add([
+					ObjectType.TRIANGLE,
+					[point[0], point[1], 0.0, 1],
+					[
+						[point[0] + .1, point[1] + .1, 0.0],
+						[point[0] + .1, point[1] - .1, 0.0],
+						[point[0] - .1, point[1], 0.0]
+					],
+					[255, 255, 0]
+				]);
+			}
+		}
+		// this was/is just for debugging purposes
+		//return this.pathPointMarkers;
+		return [];
 	}
 	
 	function getRoadTriangles() {

@@ -39,7 +39,7 @@ class PlayScene : AbstractScene {
 		
 		progress = this.course.getProgress(this.player.x, this.player.y);
 		progress = Math.floor(progress * 100);
-		print(progress + '%');
+		//print(progress + '%');
 	}
 	
 	function render(rc) {
