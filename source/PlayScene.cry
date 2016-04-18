@@ -36,6 +36,10 @@ class PlayScene : AbstractScene {
 		if (pause) {
 			this.switchScene(new PauseScreen(this));
 		}
+		
+		progress = this.course.getProgress(this.player.x, this.player.y);
+		progress = Math.floor(progress * 100);
+		print(progress + '%');
 	}
 	
 	function render(rc) {
