@@ -21,7 +21,10 @@ class PlayScene : AbstractScene {
 	}
 	
 	function update(pressedKeys, pressedThisFrame) {
-	
+		
+		oldPx = this.player.x;
+		oldPy = this.player.y;
+		
 		// update timer.
 		now = Core.currentTime();
 		if (this.previousFrameTime != null) {
@@ -60,6 +63,20 @@ class PlayScene : AbstractScene {
 		progress = this.course.getProgress(this.player.x, this.player.y);
 		progress = Math.floor(progress * 100);
 		
+		px = this.player.x;
+		py = this.player.y;
+		
+		gateways = this.course.getGatewayObjects();
+		for (i = gateways.length - 1; i >= 0; --i) {
+			gateway = gateways[i];
+			if (gateway.isNear(px, py)) {
+				if (gateway.isCrossThrough(oldPx, oldPy, px, py)) {
+					this.course.removeGateway(i);
+					this.timeLeft += 5.0;
+					break;
+				}
+			}
+		}
 	}
 	
 	function render(rc) {

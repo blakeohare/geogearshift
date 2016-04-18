@@ -1,15 +1,46 @@
+const INITIAL_GATEWAY_SPACING = 15.0;
+const GATEWAY_WIDTH = 6.0;
+const GATEWAY_HEIGHT = 1.0;
+
 class Gateway {
 	field left;
+	field leftX;
+	field leftY;
+	
 	field right;
+	field rightX;
+	field rightY;
+	
 	field center;
+	field centerX;
+	field centerY;
+	
 	field triangles;
 	field opening;
 	
 	constructor(left, right, opening, triangles) {
 		this.left = left;
+		this.leftX = left[0];
+		this.leftY = left[1];
+		
 		this.right = right;
+		this.rightX = right[0];
+		this.rightY = right[1];
+		
 		this.opening = opening;
 		this.triangles = triangles;
-		this.center = [(left[0] + right[0]) / 2.0, (left[1] + right[1]) / 2.0];
+		this.centerX = (left[0] + right[0]) / 2.0;
+		this.centerY = (left[1] + right[1]) / 2.0;
+		this.center = [this.centerX, this.centerY];
+	}
+	
+	function isNear(playerX, playerY) {
+		return ((playerX - this.centerX) ** 2 + (playerY - this.centerY) ** 2) < (GATEWAY_WIDTH / 2.0 + 1) ** 2;
+	}
+	
+	function isCrossThrough(pxOld, pyOld, pxNew, pyNew) {
+		oldSign = crossProductSign(this.leftX, this.leftY, this.rightX, this.rightY, this.leftX, this.leftY, pxOld, pyOld);
+		newSign = crossProductSign(this.leftX, this.leftY, this.rightX, this.rightY, this.leftX, this.leftY, pxNew, pyNew);
+		return oldSign != newSign;
 	}
 }

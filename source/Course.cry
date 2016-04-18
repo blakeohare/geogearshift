@@ -145,11 +145,15 @@ class Course {
 		this.gatewayObjects = null;
 	}
 	
+	function removeGateway(index) {
+		this.gatewayObjects.remove(index);
+	}
+	
 	function getGatewayObjects() {
 		if (this.gatewayObjects == null) {
 			path = this.getThePath();
 			//num = Math.floor(this.totalDistance / 10.0);
-			spacing = 15.0;
+			spacing = INITIAL_GATEWAY_SPACING;
 			
 			// each item is a list:
 			// - path point index that occurs before this gateway
@@ -183,8 +187,9 @@ class Course {
 			
 			gateways = [];
 			
-			gatewayHeight = 1.0;
-			gatewayWidth = 6.0;
+			gatewayHeight = GATEWAY_HEIGHT;
+			gatewayWidth = GATEWAY_WIDTH;
+			
 			for (i = 0; i < placements.length; ++i) {
 				placement = placements[i];
 				a = path[placement[0]];
@@ -354,14 +359,6 @@ class Course {
 		return this.roadTriangles;
 	}
 	
-	// Find the cross product of two vectors: QR x ST
-	function crossProductSign(qx, qy, rx, ry, sx, sy, tx, ty) {
-		cp = (rx - qx) * (ty - sy) - (tx - sx) * (ry - qy);
-		if (cp < 0) return -1;
-		if (cp > 0) return 1;
-		return 0;
-	}
-	
 	function isInBounds(x, y) {
 		if (this.collisionTriangles == null) {
 			this.collisionTriangles = this.generateCollisionTriangles();
@@ -381,9 +378,9 @@ class Course {
 			cx = c[0];
 			cy = c[1];
 			
-			aSign = this.crossProductSign(ax, ay, bx, by, ax, ay, x, y);
-			bSign = this.crossProductSign(bx, by, cx, cy, bx, by, x, y);
-			cSign = this.crossProductSign(cx, cy, ax, ay, cx, cy, x, y);
+			aSign = crossProductSign(ax, ay, bx, by, ax, ay, x, y);
+			bSign = crossProductSign(bx, by, cx, cy, bx, by, x, y);
+			cSign = crossProductSign(cx, cy, ax, ay, cx, cy, x, y);
 			
 			if (aSign != 1 && bSign != 1 && cSign != 1) return true;
 			if (aSign != -1 && bSign != -1 && cSign != -1) return true;

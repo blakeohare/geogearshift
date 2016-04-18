@@ -1,5 +1,13 @@
 import Math;
 
+// Find the cross product of two vectors: QR x ST
+function crossProductSign(qx, qy, rx, ry, sx, sy, tx, ty) {
+	cp = (rx - qx) * (ty - sy) - (tx - sx) * (ry - qy);
+	if (cp < 0) return -1;
+	if (cp > 0) return 1;
+	return 0;
+}
+
 // find distance of P from the line AB
 function pointDistanceFromLine(ax, ay, bx, by, px, py) {
 	dx = bx - ax;
