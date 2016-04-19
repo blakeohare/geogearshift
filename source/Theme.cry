@@ -8,7 +8,7 @@ class Theme {
 	constructor(id) {
 		this.id = id;
 		this.background = ImageLibrary.get('backgrounds/level' + this.id + '.png');
-		this.treeImage = ImageLibrary.get('billboards/nature_tree1.png');
+		this.treeImage = ImageLibrary.get('billboards/tree' + this.id + '.png');
 		this.rgb = [80, 180, 120];
 		if (id == 2) {
 			this.rgb = [200, 200, 50];

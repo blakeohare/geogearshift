@@ -47,7 +47,7 @@ class CourseSelectScreen : AbstractScene {
 	
 	function render(rc) {
 		GFX.Draw.fill(0, 0, 0);
-		x = 100;
+		x = 55;
 		y = 200;
 		for (i = 0; i < this.themes.length; ++i) {
 			theme = this.themes[i];
@@ -57,6 +57,11 @@ class CourseSelectScreen : AbstractScene {
 			}
 			
 			theme.icon.draw(x, y);
+			
+			label = ImageLibrary.get('menus/theme_' + theme.id + '.png');
+			label.draw(x - 33, y - 50);
+			
+			
 			x += 250;
 		}
 	}
