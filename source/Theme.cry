@@ -3,11 +3,18 @@ class Theme {
 	field background;
 	field treeImage;
 	field rgb;
+	field icon;
 	
 	constructor(id) {
 		this.id = id;
 		this.background = ImageLibrary.get('backgrounds/level' + this.id + '.png');
 		this.treeImage = ImageLibrary.get('billboards/nature_tree1.png');
 		this.rgb = [80, 180, 120];
+		if (id == 2) {
+			this.rgb = [200, 200, 50];
+		} else if (id == 3) {
+			this.rgb = [200, 100, 200];
+		}
+		this.icon = ImageLibrary.get('backgrounds/level' + this.id + 'icon.png');
 	}
 }

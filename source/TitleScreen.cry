@@ -39,8 +39,7 @@ class TitleScene : AbstractScene {
 		if (commit) {
 			if (this.index == 0) {
 				this.flashCursorMode = true;
-				this.switchScene(new FadeTransitionScene(this, new PlayScene(false, new Theme(1))));
-				JukeBox.transition('level1');
+				this.switchScene(new FadeTransitionScene(this, new CourseSelectScreen()));
 			} else if (this.index == 1) {
 				this.switchScene(new InstructionsScreen(this.emptyPlayscene));
 			} else {

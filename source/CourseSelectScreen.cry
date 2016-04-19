@@ -16,10 +16,10 @@ class CourseSelectScreen : AbstractScene {
 		commit = false;
 		for (action : pressedThisFrame) {
 			switch (action) {
-				case Action.UP:
+				case Action.LEFT:
 					this.index--;
 					break;
-				case Action.DOWN:
+				case Action.RIGHT:
 					this.index++;
 					break;
 				case Action.ENTER:
@@ -31,16 +31,33 @@ class CourseSelectScreen : AbstractScene {
 		if (this.index < 0) this.index = 0;
 		if (this.index >= this.themes.length) this.index = this.themes.length - 1;
 		
+		if (this.index != oldIndex) {
+			JukeBox.playSound('menupop');
+		}
+		
 		if (commit) {
 			this.startGame(this.themes[this.index]);
 		}
 	}
 	
 	function startGame(theme) {
-		
+		this.switchScene(new FadeTransitionScene(this, new PlayScene(false, theme)));
+		JukeBox.transition('level1');
 	}
 	
 	function render(rc) {
-		
+		GFX.Draw.fill(0, 0, 0);
+		x = 100;
+		y = 200;
+		for (i = 0; i < this.themes.length; ++i) {
+			theme = this.themes[i];
+			if (i == this.index) {
+				cursor = ImageLibrary.get('menus/cursor.png');
+				cursor.draw(x - 30, y + 80);
+			}
+			
+			theme.icon.draw(x, y);
+			x += 250;
+		}
 	}
 }
