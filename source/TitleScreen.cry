@@ -30,7 +30,7 @@ class TitleScene : AbstractScene {
 			}
 		}
 		
-		this.index = Math.ensureRange(this.index, 0, 2);
+		this.index = Math.ensureRange(this.index, 0, 1);
 		if (this.index != oldIndex) {
 			JukeBox.playSound('menupop');
 			this.counter = 0;
@@ -65,7 +65,7 @@ class TitleScene : AbstractScene {
 		images = [
 			ImageLibrary.get('menus/course_select.png'),
 			ImageLibrary.get('menus/instructions.png'),
-			ImageLibrary.get('menus/options.png'),
+			//ImageLibrary.get('menus/options.png'),
 		];
 		cursor = ImageLibrary.get('menus/cursor.png');
 		
