@@ -19,13 +19,19 @@ class JukeBox {
 	
 	static function play(id) {
 		if (AUDIO_ENABLED) {
-			JukeBox._getSong(id).play(true);
+			song = JukeBox._getSong(id);
+			if (song != null) {
+				song.play(true);
+			}
 		}
 	}
 	
 	static function transition(id) {
 		if (AUDIO_ENABLED) {
-			JukeBox._getSong(id).fadeOutAndPlay(true, 3);
+			song = JukeBox._getSong(id);
+			if (song != null) {
+				song.fadeOutAndPlay(true, 3);
+			}
 		}
 	}
 	
@@ -36,6 +42,8 @@ class JukeBox {
 			snd = Audio.SoundResource.loadFromResource('sound/' + id + '.ogg');
 			JukeBox.sounds[id] = snd;
 		}
-		snd.play();
+		if (snd != null) {
+			snd.play();
+		}
 	}
 }

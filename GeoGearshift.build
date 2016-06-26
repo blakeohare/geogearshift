@@ -29,10 +29,14 @@
   </target>
   
   <target name="windows">
-	<platform>csopengl</platform>
+	<platform>csharp-opentk</platform>
   </target>
   
   <target name="python">
 	<platform>python</platform>
+  </target>
+  
+  <target name="java">
+	<platform>java</platform>
   </target>
 </build>
