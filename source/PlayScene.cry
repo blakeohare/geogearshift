@@ -1,3 +1,5 @@
+import Math;
+
 const TIME_BONUS_HUD_COUNTER_MAX = FPS / 2;
 
 class PlayScene : AbstractScene {

@@ -1,6 +1,6 @@
 import FileIO;
 import Game;
-import GFX;
+import Graphics2D;
 import Math;
 
 const EDITOR_MODE = false;
@@ -91,7 +91,7 @@ class EditorScene : AbstractScene {
 		}
 		output.add(']\n}');
 		
-		FileIO.File.writeText(MAPS_DIRECTORY + this.course.id + '.json', output.join(''));
+		FileIO.fileWriteText(MAPS_DIRECTORY + this.course.id + '.json', output.join(''));
 	}
 	
 	function normalizeBounds(bounds) {
@@ -320,7 +320,7 @@ class EditorScene : AbstractScene {
 	
 	function render(rc) {
 		
-		GFX.Draw.fill(40, 40, 40);
+		Graphics2D.Draw.fill(40, 40, 40);
 		
 		left = this.bounds[0];
 		right = this.bounds[2];
@@ -359,7 +359,7 @@ class EditorScene : AbstractScene {
 						red = 255;
 						blue = 0;
 					}
-					GFX.Draw.line(a[2], SCREEN_HEIGHT - a[3], b[2], SCREEN_HEIGHT - b[3], width, red, 180, blue);
+					Graphics2D.Draw.line(a[2], SCREEN_HEIGHT - a[3], b[2], SCREEN_HEIGHT - b[3], width, red, 180, blue);
 				}
 			}
 		}
@@ -382,7 +382,7 @@ class EditorScene : AbstractScene {
 			x -= size / 2;
 			y -= size / 2;
 			rgb = i == highlightIndex ? EditorScene.RED : EditorScene.WHITE;
-			GFX.Draw.rectangle(x, y, size, size, rgb[0], rgb[1], rgb[2]);
+			Graphics2D.Draw.rectangle(x, y, size, size, rgb[0], rgb[1], rgb[2]);
 		}
 	}
 	static field RED = [255, 0, 0];

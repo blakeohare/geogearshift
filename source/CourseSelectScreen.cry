@@ -1,3 +1,5 @@
+import Graphics2D;
+
 class CourseSelectScreen : AbstractScene {
 	
 	field themes;
@@ -46,7 +48,7 @@ class CourseSelectScreen : AbstractScene {
 	}
 	
 	function render(rc) {
-		GFX.Draw.fill(0, 0, 0);
+		Graphics2D.Draw.fill(0, 0, 0);
 		x = 55;
 		y = 200;
 		for (i = 0; i < this.themes.length; ++i) {

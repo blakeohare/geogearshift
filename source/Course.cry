@@ -1,4 +1,4 @@
-import JSON;
+import Json;
 import Math;
 import Random;
 import Resources;
@@ -36,7 +36,7 @@ class Course {
 		this.id = id;
 		json = Resources.readText('levels/' + id + '.json');
 		//print(json);
-		rawData = JSON.parseJson(json);
+		rawData = Json.parseJson(json);
 		this.name = rawData.get('name') ?? "Untitled level";
 		this.music = rawData.get('music');
 		points = rawData.get('points', []);

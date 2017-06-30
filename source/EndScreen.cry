@@ -1,3 +1,6 @@
+import Graphics2D;
+import Math;
+
 class EndScreen : AbstractScene {
 	
 	field bg;
@@ -28,7 +31,7 @@ class EndScreen : AbstractScene {
 			this.bg.render(rc);
 		}
 		
-		GFX.Draw.rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, 0, Math.floor(255 * blackness));
+		Graphics2D.Draw.rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, 0, Math.floor(255 * blackness));
 		
 		stop = ImageLibrary.get('menus/end_text.png');
 		stop.draw((SCREEN_WIDTH - stop.width) / 2, 100);

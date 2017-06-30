@@ -1,6 +1,5 @@
-// Nothing here yet.
-
 import Math;
+import Random;
 
 const ROTATION_VELOCITY = TWO_PI * .003; // 1%
 const ACCEL_RATE = 0.05;

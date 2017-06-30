@@ -1,3 +1,5 @@
+import Graphics2D;
+
 class PauseScreen : AbstractScene {
 	
 	field bg;
@@ -46,7 +48,7 @@ class PauseScreen : AbstractScene {
 	
 	function render(rc) {
 		this.bg.render(rc);
-		GFX.Draw.rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, 0, 170);
+		Graphics2D.Draw.rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, 0, 170);
 		
 		y = 200;
 		x = 300;

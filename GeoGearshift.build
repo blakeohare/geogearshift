@@ -3,40 +3,45 @@
   <source>source/</source>
   <output>output/%TARGET_NAME%</output>
 
-  <spritesheets>
+  <imagesheets>
     <sheet id="everything">
       <prefix>images/</prefix>
     </sheet>
-  </spritesheets>
+  </imagesheets>
 
   <target name="js_local">
-    <platform>js</platform>
+    <platform>javascript-app-gl</platform>
   </target>
   
   <target name="js_noisyprotozoa">
-    <platform>js</platform>
+    <platform>javascript-app-gl</platform>
     <jsfileprefix>/demos/geogearshift/</jsfileprefix>
   </target>
   
   <target name="js_ludumdare">
-	<platform>js</platform>
+	<platform>javascript-app-gl</platform>
 	<jsfileprefix>/ludumdare/geogearshift/</jsfileprefix>
   </target>
   
   <target name="js_twocans">
-	<platform>js</platform>
+	<platform>javascript-app-gl</platform>
 	<jsfileprefix>/projects/geogearshift/</jsfileprefix>
   </target>
   
-  <target name="windows">
-	<platform>csharp-opentk</platform>
+  <target name="games_browser">
+	<platform>javascript-app-gl</platform>
+	<jsfileprefix>/games/geogearshift/</jsfileprefix>
+  </target>
+  
+  <target name="csharp">
+	<platform>csharp-app</platform>
   </target>
   
   <target name="python">
-	<platform>python</platform>
+	<platform>app-python</platform>
   </target>
   
   <target name="java">
-	<platform>java</platform>
+	<platform>app-java</platform>
   </target>
 </build>

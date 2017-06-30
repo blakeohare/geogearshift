@@ -1,3 +1,5 @@
+import Graphics2D;
+
 class InstructionsScreen : AbstractScene {
 	
 	field bg;
@@ -17,7 +19,7 @@ class InstructionsScreen : AbstractScene {
 	function render(rc) {
 		this.bg.render(rc);
 		
-		GFX.Draw.rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, 0, 128);
+		Graphics2D.Draw.rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, 0, 128);
 		
 		img = ImageLibrary.get('menus/instructions_text.png');
 		
